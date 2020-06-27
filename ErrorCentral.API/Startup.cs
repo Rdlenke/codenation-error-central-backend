@@ -1,8 +1,10 @@
 using System.Text;
+using ErrorCentral.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Versioning.Conventions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,7 +27,7 @@ namespace ErrorCentral.API
         {
             services
                 .AddCustomAuthentication(Configuration)
-                .AddCustomDbContext()
+                .AddCustomDbContext(Configuration)
                 .AddCustomApiVersioning()
                 .AddCustomSwagger()
                 .AddCustomApplicationServices();
@@ -65,9 +67,9 @@ namespace ErrorCentral.API
 
     static class CustomExtensionsMethods
     {
-        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration Configuration)
+        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("Jwt:Secret"));
+            var key = Encoding.ASCII.GetBytes(configuration.GetValue<string>("Jwt:Secret"));
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,10 +90,10 @@ namespace ErrorCentral.API
             return services;
         }
 
-        public static IServiceCollection AddCustomDbContext(this IServiceCollection services)
+        public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddDbContext<CommandsDbContext>(opt =>
-            //   opt.UseInMemoryDatabase("ErrorCentral"));
+            services.AddDbContext<ErrorCentralContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             return services;
         }
 
