@@ -34,7 +34,7 @@ namespace ErrorCentral.Services
             {
                 return new AuthenticationResponse
                 {
-                    Sucess = false,
+                    Success = false,
                     Errors = new[] { "Já existe um usuário com este email." }
                 };
             }
@@ -53,7 +53,7 @@ namespace ErrorCentral.Services
             {
                 return new AuthenticationResponse
                 {
-                    Sucess = false,
+                    Success = false,
                     Errors = created.Errors.Select(x => x.Description).ToArray<string>()
                 };
             }
@@ -66,7 +66,7 @@ namespace ErrorCentral.Services
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
                 Token = token,
-                Sucess = true,
+                Success = true,
             };
         }
 
@@ -76,7 +76,23 @@ namespace ErrorCentral.Services
 
             if(user == null)
             {
-                return null;
+                return new AuthenticationResponse
+                {
+                    Success = false,
+                    Errors = new [] { "This user doesn't exist. "}
+
+                };
+            }
+
+            bool hasCorrectPassword = await _userManager.CheckPasswordAsync(user, request.Password);
+
+            if (!hasCorrectPassword)
+            {
+                return new AuthenticationResponse
+                {
+                    Success = false,
+                    Errors = new[] { "Wrong user/password combination, friend. " }
+                };
             }
 
             string token = GenerateToken(user);
@@ -87,7 +103,7 @@ namespace ErrorCentral.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Token = token,
-                Sucess = true,
+                Success = true,
             };
         }
 

@@ -13,6 +13,6 @@ namespace ErrorCentral.Contracts
         public string LastName { get; set; }
         public string Token { get; set; }
         public string[] Errors { get; set; }
-        public bool Sucess { get; set; }
+        public bool Success { get; set; }
     }
 }

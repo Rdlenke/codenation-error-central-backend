@@ -25,7 +25,7 @@ namespace ErrorCentral.Controllers
         {
             AuthenticationResponse response = await _userService.RegisterAsync(registerRequest);
 
-            if (!response.Sucess)
+            if (!response.Success)
             {
                 return BadRequest(response.Errors);
             }
@@ -39,7 +39,7 @@ namespace ErrorCentral.Controllers
         {
             AuthenticationResponse response = await _userService.AuthenticateAsync(authenticationRequest);
 
-            if (!response.Sucess)
+            if (!response.Success)
             {
                 return BadRequest(response.Errors);
             }
