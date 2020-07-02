@@ -1,4 +1,7 @@
-﻿using ErrorCentral.Domain.SeedWork;
+﻿using ErrorCentral.Domain.AggregatesModel.LogError;
+using ErrorCentral.Domain.AggregatesModel.User;
+using ErrorCentral.Domain.SeedWork;
+using ErrorCentral.Infrastructure.Mappings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -10,15 +13,16 @@ namespace ErrorCentral.Infrastructure
 {
     public class ErrorCentralContext : DbContext, IUnitOfWork
     {
-        //public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<LogError> LogErrors { get; set; }
 
         private IDbContextTransaction _currentTransaction;
-        public ErrorCentralContext(DbContextOptions<ErrorCentralContext> options) : base(options)
-        { }
+        public ErrorCentralContext(DbContextOptions<ErrorCentralContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            //builder.ApplyConfiguration(new UserMap());
+            builder.ApplyConfiguration(new UserMap());
+            builder.ApplyConfiguration(new LogErrorMap());
         }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()

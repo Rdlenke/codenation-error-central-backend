@@ -1,5 +1,7 @@
 using System.Text;
+using ErrorCentral.Domain.AggregatesModel.LogError;
 using ErrorCentral.Infrastructure;
+using ErrorCentral.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -145,7 +147,7 @@ namespace ErrorCentral.API
         public static void AddCustomApplicationServices(this IServiceCollection services)
         {
             //services.AddScoped<IUserRepository, UserRepository>();
-            //services.AddScoped<ILogErrorRepository, LogErrosRepository>();
+            services.AddScoped<ILogErrorRepository, LogErrorRepository>();
         }
     }
 }

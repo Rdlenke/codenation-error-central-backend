@@ -19,13 +19,15 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Moq" Version="4.14.5" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\" />
+    <ProjectReference Include="..\ErrorCentral.Application\ErrorCentral.Application.csproj" />
+    <ProjectReference Include="..\ErrorCentral.Domain\ErrorCentral.Domain.csproj" />
   </ItemGroup>
 
 </Project>
