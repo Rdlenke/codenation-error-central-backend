@@ -8,7 +8,6 @@ using Xunit;
 using ErrorCentral.Application.ViewModels.LogError;
 using FluentAssertions;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
-using System.Threading;
 
 namespace ErrorCentral.UnitTests.API
 {
@@ -40,8 +39,8 @@ namespace ErrorCentral.UnitTests.API
                 .Returns(Task.FromResult(true));
 
             //Act
-            var orderController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await orderController.CreateLogErrorAsync(logError) as OkResult;
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as OkResult;
 
             //Assert
             actionResult.StatusCode.Should()
@@ -64,8 +63,8 @@ namespace ErrorCentral.UnitTests.API
                 .Returns(Task.FromResult(false));
 
             //Act
-            var orderController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await orderController.CreateLogErrorAsync(logError) as BadRequestResult;
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as BadRequestResult;
 
             //Assert
             actionResult.StatusCode.Should()
@@ -86,8 +85,8 @@ namespace ErrorCentral.UnitTests.API
                 environment: EEnvironment.Development);
 
             //Act
-            var orderController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await orderController.CreateLogErrorAsync(logError) as BadRequestResult;
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as BadRequestResult;
 
             //Assert
             actionResult.StatusCode.Should()

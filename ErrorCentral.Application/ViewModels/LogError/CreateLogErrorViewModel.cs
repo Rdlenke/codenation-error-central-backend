@@ -7,16 +7,16 @@ namespace ErrorCentral.Application.ViewModels.LogError
     public class CreateLogErrorViewModel : IViewModel
     {
         [Required]
-        public int UserId { get; private set; }
+        public int UserId { get; set; }
         [Required]
-        public string Title { get; private set; }
-        public string Details { get; private set; }
+        public string Title { get; set; }
+        public string Details { get; set; }
         [Required]
-        public string Source { get; private set; }
+        public string Source { get; set; }
         [Required]
-        public ELevel Level { get; private set; }
+        public ELevel Level { get; set; }
         [Required]
-        public EEnvironment Environment { get; private set; }
+        public EEnvironment Environment { get; set; }
 
         public CreateLogErrorViewModel(int userId, string title, string details, string source, ELevel level, EEnvironment environment)
         {
