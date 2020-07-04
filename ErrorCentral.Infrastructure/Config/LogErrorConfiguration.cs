@@ -2,7 +2,6 @@
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
 
 namespace ErrorCentral.Infrastructure.Config
 {
@@ -21,8 +20,8 @@ namespace ErrorCentral.Infrastructure.Config
             builder.Property(p => p.Level).HasColumnName("e_level").IsRequired();
             builder.Property(p => p.Environment).HasColumnName("e_environment").IsRequired();
 
-            builder.Property(p => p.CreatedAt).HasColumnName("created_at").HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
-            builder.Property(p => p.UpdatedAt).HasColumnName("updated_at").HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
+            builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();
+            builder.Property(p => p.UpdatedAt).HasColumnName("updated_at").IsRequired();
 
             builder.Property(p => p.Removed).HasColumnName("removed").HasDefaultValue(false).IsRequired();
             builder.HasQueryFilter(p => !p.Removed);
