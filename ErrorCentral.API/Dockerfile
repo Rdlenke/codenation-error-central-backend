@@ -8,8 +8,9 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["ErrorCentral.API/ErrorCentral.API.csproj", "ErrorCentral.API/"]
-COPY ["ErrorCentral.Infrastructure/ErrorCentral.Infrastructure.csproj", "ErrorCentral.Infrastructure/"]
+COPY ["ErrorCentral.Application/ErrorCentral.Application.csproj", "ErrorCentral.Application/"]
 COPY ["ErrorCentral.Domain/ErrorCentral.Domain.csproj", "ErrorCentral.Domain/"]
+COPY ["ErrorCentral.Infrastructure/ErrorCentral.Infrastructure.csproj", "ErrorCentral.Infrastructure/"]
 RUN dotnet restore "ErrorCentral.API/ErrorCentral.API.csproj"
 COPY . .
 WORKDIR "/src/ErrorCentral.API"

@@ -1,7 +1,7 @@
 ﻿using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.LogError;
-using ErrorCentral.Domain.AggregatesModel.LogError;
-using ErrorCentral.Domain.AggregatesModel.User;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using FluentAssertions;
 using Moq;
 using System;
@@ -36,7 +36,7 @@ namespace ErrorCentral.UnitTests.Application
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var cltToken = new CancellationToken();
-            Func<Task> act = async () => { await service.Create(fakeOrderCmd, cltToken); };
+            Func<Task> act = async () => { await service.CreateAsync(fakeOrderCmd, cltToken); };
 
             //Assert
             act.Should().Throw<ArgumentException>()
@@ -60,7 +60,7 @@ namespace ErrorCentral.UnitTests.Application
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var cltToken = new CancellationToken();
-            var result = await service.Create(fakeOrderCmd, cltToken);
+            var result = await service.CreateAsync(fakeOrderCmd, cltToken);
 
             //Assert
             result

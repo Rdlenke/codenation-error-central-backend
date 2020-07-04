@@ -6,6 +6,6 @@ namespace ErrorCentral.Application.Services
 {
     public interface ILogErrorService
     {
-        Task<bool> Create(CreateLogErrorViewModel model, CancellationToken cancellationToken);
+        Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default);
     }
 }

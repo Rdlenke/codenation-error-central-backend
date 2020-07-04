@@ -1,6 +1,6 @@
 ﻿using ErrorCentral.Application.ViewModels.LogError;
-using ErrorCentral.Domain.AggregatesModel.LogError;
-using ErrorCentral.Domain.AggregatesModel.User;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ namespace ErrorCentral.Application.Services
             this._userRepository = userRepository;
         }
 
-        public async Task<bool> Create(CreateLogErrorViewModel model, CancellationToken cancellationToken)
+        public async Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default)
         {
             var user = await _userRepository.GetAsync(model.UserId);
             if (user == null)

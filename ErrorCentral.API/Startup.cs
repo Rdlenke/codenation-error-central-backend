@@ -1,5 +1,5 @@
 using System.Text;
-using ErrorCentral.Domain.AggregatesModel.LogError;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Infrastructure;
 using ErrorCentral.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

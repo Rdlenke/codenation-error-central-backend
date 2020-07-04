@@ -1,7 +1,8 @@
-﻿using ErrorCentral.Domain.SeedWork;
+﻿using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using ErrorCentral.Domain.SeedWork;
 using System;
 
-namespace ErrorCentral.Domain.AggregatesModel.LogError
+namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
 {
     public class LogError : Entity, IAggregateRoot
     {
@@ -14,6 +15,7 @@ namespace ErrorCentral.Domain.AggregatesModel.LogError
         public EEnvironment Environment { get; private set; }
         public DateTimeOffset CreatedAt { get; private set; }
         public DateTimeOffset UpdatedAt { get; private set; }
+        public User User { get; set; }
 
         protected LogError()
         {

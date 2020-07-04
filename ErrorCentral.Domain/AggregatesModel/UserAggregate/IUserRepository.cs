@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ErrorCentral.Domain.AggregatesModel.User
+namespace ErrorCentral.Domain.AggregatesModel.UserAggregate
 {
     public interface IUserRepository
     {

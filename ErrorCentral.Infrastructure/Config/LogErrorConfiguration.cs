@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
-namespace ErrorCentral.Infrastructure.Mappings
+namespace ErrorCentral.Infrastructure.Config
 {
-    public class LogErrorMap : IEntityTypeConfiguration<LogError>
+    public class LogErrorConfiguration : IEntityTypeConfiguration<LogError>
     {
         public void Configure(EntityTypeBuilder<LogError> builder)
         {

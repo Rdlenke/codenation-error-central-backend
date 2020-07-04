@@ -1,7 +1,7 @@
 ﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Domain.SeedWork;
-using ErrorCentral.Infrastructure.Mappings;
+using ErrorCentral.Infrastructure.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -21,8 +21,8 @@ namespace ErrorCentral.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new UserMap());
-            builder.ApplyConfiguration(new LogErrorMap());
+            builder.ApplyConfiguration(new UserConfiguration());
+            builder.ApplyConfiguration(new LogErrorConfiguration());
         }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
