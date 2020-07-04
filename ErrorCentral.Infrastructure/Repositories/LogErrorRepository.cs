@@ -1,4 +1,4 @@
-﻿using ErrorCentral.Domain.AggregatesModel.LogError;
+﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.SeedWork;
 using System;
 

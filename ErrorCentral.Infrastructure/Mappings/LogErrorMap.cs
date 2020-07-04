@@ -1,7 +1,8 @@
-﻿using ErrorCentral.Domain.AggregatesModel.LogError;
-using ErrorCentral.Domain.AggregatesModel.User;
+﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace ErrorCentral.Infrastructure.Mappings
 {
@@ -20,10 +21,10 @@ namespace ErrorCentral.Infrastructure.Mappings
             builder.Property(p => p.Level).HasColumnName("e_level").IsRequired();
             builder.Property(p => p.Environment).HasColumnName("e_environment").IsRequired();
 
-            builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();
-            builder.Property(p => p.UpdatedAt).HasColumnName("updated_at").IsRequired();
+            builder.Property(p => p.CreatedAt).HasColumnName("created_at").HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
+            builder.Property(p => p.UpdatedAt).HasColumnName("updated_at").HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
 
-            builder.Property(p => p.Removed).HasColumnName("removed").HasDefaultValue(false);
+            builder.Property(p => p.Removed).HasColumnName("removed").HasDefaultValue(false).IsRequired();
             builder.HasQueryFilter(p => !p.Removed);
 
             builder.Property(p => p.UserId).HasColumnName("id_user").IsRequired();

@@ -1,5 +1,5 @@
-﻿using ErrorCentral.Domain.AggregatesModel.LogError;
-using ErrorCentral.Domain.AggregatesModel.User;
+﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Domain.SeedWork;
 using ErrorCentral.Infrastructure.Mappings;
 using Microsoft.EntityFrameworkCore;
