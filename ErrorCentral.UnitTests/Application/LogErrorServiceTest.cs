@@ -68,9 +68,14 @@ namespace ErrorCentral.UnitTests.Application
                 .BeFalse();
         }
 
-        private User FakeUser()
+        private User FakeUser(Dictionary<string, object> args = null)
         {
-            return new User();
+            return new User(
+                password: args != null && args.ContainsKey("password") ? (string)args["pasword"] : null,
+                firstName: args != null && args.ContainsKey("firstName") ? (string)args["firstName"] : null,
+                lastName: args != null && args.ContainsKey("lastName") ? (string)args["lastName"] : null,
+                email: args != null && args.ContainsKey("email") ? (string)args["email"] : null
+            );
         }
 
         private CreateLogErrorViewModel FakeLogErrorRequest(Dictionary<string, object> args = null)
