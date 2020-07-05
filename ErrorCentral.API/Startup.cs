@@ -1,5 +1,11 @@
 using System.Text;
+using ErrorCentral.Application.Services;
+using ErrorCentral.Application.Settings;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Infrastructure;
+using ErrorCentral.Infrastructure.Repositories;
+using ErrorCentral.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -69,7 +75,14 @@ namespace ErrorCentral.API
     {
         public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = Encoding.ASCII.GetBytes(configuration.GetValue<string>("Jwt:Secret"));
+            Jwt jwt = new Jwt();
+
+            configuration.GetSection(nameof(Jwt)).Bind(jwt);
+
+            services.AddSingleton(jwt);
+
+            var key = Encoding.ASCII.GetBytes(jwt.Secret);
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -144,8 +157,10 @@ namespace ErrorCentral.API
 
         public static void AddCustomApplicationServices(this IServiceCollection services)
         {
-            //services.AddScoped<IUserRepository, UserRepository>();
-            //services.AddScoped<ILogErrorRepository, LogErrosRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ILogErrorRepository, LogErrorRepository>();
+            services.AddScoped<ILogErrorService, LogErrorService>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }
