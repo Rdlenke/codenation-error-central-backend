@@ -1,0 +1,10 @@
+language: csharp
+solution: ErrorCentral.sln
+
+install:
+  - nuget restore ErrorCentral.sln
+  - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
+
+script:
+  - msbuild /p:Configuration=Release ErrorCentral.sln
+  - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./ErrorCentral.UnitTests/bin/Release/ErrorCentral.UnitTests.dll
