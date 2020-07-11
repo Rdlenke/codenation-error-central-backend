@@ -1,5 +1,4 @@
 language: csharp
-language: csharp
 solution: ErrorCentral.sln
 mono: none
 dotnet: 3.1
