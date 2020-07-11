@@ -38,9 +38,6 @@ namespace ErrorCentral.Services
 
             string hashed = passwordHasher.HashPassword(user, model.Password);
 
-            Console.WriteLine($"Password in register: {hashed}");
-
-
             User newUser = new User(
                 email: model.Email, 
                 lastName: model.LastName, 
