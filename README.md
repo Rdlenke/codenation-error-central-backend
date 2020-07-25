@@ -60,7 +60,7 @@ Caso queira remover as migrações que foram geradas é necessário executar o p
     
 Para que as atualizações criadas na migrate sejam feitas no banco de dados execute o seguinte comando:
 
-    dotnet ef database update -s ErrorCentral.API -p ErrorCentral.Infrasctructure
+    dotnet ef database update -s ErrorCentral.API -p ErrorCentral.Infrastructure
     
 Gerar um script sql das alterações contidas na migrate:
 
