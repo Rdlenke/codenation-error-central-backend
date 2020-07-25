@@ -18,6 +18,8 @@ namespace ErrorCentral.Application.ViewModels.LogError
         [Required]
         public EEnvironment Environment { get; set; }
 
+        protected CreateLogErrorViewModel() { }
+
         public CreateLogErrorViewModel(int userId, string title, string details, string source, ELevel level, EEnvironment environment)
         {
             this.UserId = userId;

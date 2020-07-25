@@ -16,8 +16,8 @@ namespace ErrorCentral.Infrastructure.Config
 
             builder.Property(p => p.Email).HasColumnName("email").HasMaxLength(500).IsRequired();
             builder.Property(p => p.Password).HasColumnName("password").IsRequired();
-            builder.Property(p => p.FirstName).HasColumnName("firstName").HasMaxLength(100).IsRequired();
-            builder.Property(p => p.LastName).HasColumnName("lastName").HasMaxLength(100).IsRequired();
+            builder.Property(p => p.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
+            builder.Property(p => p.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
 
 
             builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();

@@ -1,4 +1,10 @@
 language: csharp
+
+# whitelist
+branches:
+  only:
+    - master
+
 solution: ErrorCentral.sln
 dotnet: 3.1
 script:
