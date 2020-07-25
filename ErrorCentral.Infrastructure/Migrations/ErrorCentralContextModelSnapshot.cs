@@ -103,13 +103,13 @@ namespace ErrorCentral.Infrastructure.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnName("firstName")
+                        .HasColumnName("first_name")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnName("lastName")
+                        .HasColumnName("last_name")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
