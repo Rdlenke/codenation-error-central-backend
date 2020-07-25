@@ -1,6 +1,7 @@
 ﻿using ErrorCentral.Application.ViewModels.LogError;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using ErrorCentral.Domain.SeedWork;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,30 @@ namespace ErrorCentral.Application.Services
 
             return await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync(cancellationToken);
+        }
+
+        public async Task<Response<LogErrorDetailsViewModel>> GetLogError(int id)
+        {
+            var logError = await _logErrorRepository.GetById(id);
+
+            if (logError == null)
+            {
+                return new Response<LogErrorDetailsViewModel>(
+                    success: false,
+                    errors: new[] { $"There isn't a log error with {id}" });
+            }
+
+            LogErrorDetailsViewModel model = new LogErrorDetailsViewModel(
+                date: logError.CreatedAt,
+                environment: logError.Environment,
+                level: logError.Level,
+                source: logError.Source,
+                details: logError.Details,
+                title: logError.Title,
+                userId: logError.UserId
+            );
+
+            return new Response<LogErrorDetailsViewModel>(data: model, success: true, errors: null);
         }
     }
 }

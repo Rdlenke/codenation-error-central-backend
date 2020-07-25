@@ -8,6 +8,7 @@ using Xunit;
 using ErrorCentral.Application.ViewModels.LogError;
 using FluentAssertions;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Domain.SeedWork;
 
 namespace ErrorCentral.UnitTests.API
 {
@@ -91,6 +92,32 @@ namespace ErrorCentral.UnitTests.API
             //Assert
             actionResult.StatusCode.Should()
                 .Be((int)System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [Theory]
+        [Trait("GET - Operation", "Detail")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Get_log_error_unsuccessfully(int id)
+        {
+            //Arrange 
+            var response = new Response<LogErrorDetailsViewModel>(
+                success: false,
+                errors: new [] { $"There isn't an log with id {id}" }
+            );
+
+            _logErrorServiceMock.Setup(x => x.GetLogError(id)).Returns(
+                Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetLogError(id);
+            var result = actionResult.Result as NotFoundObjectResult;
+
+            //Asserts
+            result.StatusCode.Should().Be((int)System.Net.HttpStatusCode.NotFound);
         }
     }
 }

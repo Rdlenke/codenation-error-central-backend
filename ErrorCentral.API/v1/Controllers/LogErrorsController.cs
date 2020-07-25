@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.LogError;
+using ErrorCentral.Domain.SeedWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
@@ -44,6 +45,19 @@ namespace ErrorCentral.API.v1.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetLogError(int id)
+        {
+            Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
+
+            if(model.Success == false)
+            {
+                return NotFound(model);
+            }
+
+            return Ok(model);
         }
     }
 }
