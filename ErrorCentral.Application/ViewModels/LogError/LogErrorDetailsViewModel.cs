@@ -18,18 +18,18 @@ namespace ErrorCentral.Application.ViewModels.LogError
 
         public EEnvironment Environment { get; set; }
 
-        public DateTimeOffset Date { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         public string Source { get; set; }
 
-        public LogErrorDetailsViewModel(int userId, string title, string details, ELevel level, EEnvironment environment, DateTimeOffset date, string source)
+        public LogErrorDetailsViewModel(int userId, string title, string details, ELevel level, EEnvironment environment, DateTimeOffset createdAt, string source)
         {
             UserId = userId;
             Title = title;
             Details = details;
             Level = level;
             Environment = environment;
-            Date = date;
+            CreatedAt = createdAt;
             Source = source;
         }
     }

@@ -7,6 +7,7 @@ using ErrorCentral.Domain.SeedWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -52,7 +53,20 @@ namespace ErrorCentral.API.v1.Controllers
         {
             Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
 
-            if(model.Success == false)
+            if (model.Success == false)
+            {
+                return NotFound(model);
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet]
+        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll()
+        {
+            Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
+
+            if (model.Success == false)
             {
                 return NotFound(model);
             }

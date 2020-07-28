@@ -5,6 +5,7 @@ using ErrorCentral.Domain.SeedWork;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ErrorCentral.Application.Services
 {
@@ -51,7 +52,7 @@ namespace ErrorCentral.Application.Services
             }
 
             LogErrorDetailsViewModel model = new LogErrorDetailsViewModel(
-                date: logError.CreatedAt,
+                createdAt: logError.CreatedAt,
                 environment: logError.Environment,
                 level: logError.Level,
                 source: logError.Source,
@@ -60,7 +61,38 @@ namespace ErrorCentral.Application.Services
                 userId: logError.UserId
             );
 
-            return new Response<LogErrorDetailsViewModel>(data: model, success: true, errors: null);
+            return new Response<LogErrorDetailsViewModel>(
+                data: model, success: true, errors: null);
+        }
+
+        public Response<List<ListLogErrorsViewModel>> GetAll()
+        {
+            var logErrors = _logErrorRepository.GetList();
+
+            if (logErrors == null)
+            {
+                return new Response<List<ListLogErrorsViewModel>>(
+                    success: false,
+                    errors: new[] { "There are no errors to show" });
+            }
+
+            var logErrorsViewModel = new List<ListLogErrorsViewModel>();
+            foreach (LogError logError in logErrors)
+            {
+                ListLogErrorsViewModel model = new ListLogErrorsViewModel(
+                userId: logError.UserId,
+                details: logError.Details,
+                level: logError.Level,
+                createdAt: logError.CreatedAt,
+                source: logError.Source,
+                events: logError.Events
+                );
+
+                logErrorsViewModel.Add(model);
+            }
+
+            return new Response<List<ListLogErrorsViewModel>>(
+                data: logErrorsViewModel, success: true, errors: null);
         }
     }
 }
