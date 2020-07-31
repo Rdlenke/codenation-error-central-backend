@@ -75,7 +75,7 @@ namespace ErrorCentral.API.v1.Controllers
             return Ok(model);
         }
 
-        [HttpGet]
+        [HttpGet("{environment}")]
         public ActionResult<Response<List<EnvironmentLogErrorsViewModel>>> GetByEnvironment(EEnvironment environment)
         {
             Response<List<EnvironmentLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
