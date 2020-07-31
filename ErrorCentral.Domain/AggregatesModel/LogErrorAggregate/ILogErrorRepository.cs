@@ -9,5 +9,6 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
         LogError Add(LogError logError);
         Task<LogError> GetById(int id);
         IList<LogError> GetList();
+        IList<LogError> GetByEnvironment(EEnvironment Environment);
     }
 }

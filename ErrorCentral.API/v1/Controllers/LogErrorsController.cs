@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -65,6 +66,19 @@ namespace ErrorCentral.API.v1.Controllers
         public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll()
         {
             Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
+
+            if (model.Success == false)
+            {
+                return NotFound(model);
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet]
+        public ActionResult<Response<List<EnvironmentLogErrorsViewModel>>> GetByEnvironment(EEnvironment environment)
+        {
+            Response<List<EnvironmentLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
 
             if (model.Success == false)
             {

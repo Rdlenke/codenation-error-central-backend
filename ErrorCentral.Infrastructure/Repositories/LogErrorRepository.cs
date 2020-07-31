@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ErrorCentral.Infrastructure.Repositories
 {
@@ -25,6 +26,16 @@ namespace ErrorCentral.Infrastructure.Repositories
         public async Task<LogError> GetById(int id)
         {
             return await _context.LogErrors.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public IList<LogError> GetList()
+        {
+            return _context.LogErrors.ToList();
+        }
+
+        public IList<LogError> GetByEnvironment(EEnvironment environment)
+        {
+            return _context.LogErrors.Where(x => x.Environment == environment).ToList();
         }
     }
 }

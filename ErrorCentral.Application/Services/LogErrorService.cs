@@ -94,5 +94,35 @@ namespace ErrorCentral.Application.Services
             return new Response<List<ListLogErrorsViewModel>>(
                 data: logErrorsViewModel, success: true, errors: null);
         }
+
+        public Response<List<EnvironmentLogErrorsViewModel>> GetByEnvironment(EEnvironment environment)
+        {
+            var environmentLogErrors = _logErrorRepository.GetByEnvironment(environment);
+
+            if (environmentLogErrors == null)
+            {
+                return new Response<List<EnvironmentLogErrorsViewModel>>(
+                    success: false,
+                    errors: new[] { "There are no errors to show" });
+            }
+
+            var environmentErrorsViewModel = new List<EnvironmentLogErrorsViewModel>();
+            foreach (LogError logError in environmentLogErrors)
+            {
+                EnvironmentLogErrorsViewModel model = new EnvironmentLogErrorsViewModel(
+                userId: logError.UserId,
+                details: logError.Details,
+                level: logError.Level,
+                createdAt: logError.CreatedAt,
+                source: logError.Source,
+                events: logError.Events
+                );
+
+                environmentErrorsViewModel.Add(model);
+            }
+
+            return new Response<List<EnvironmentLogErrorsViewModel>>(
+                data: environmentErrorsViewModel, success: true, errors: null);
+        }
     }
 }

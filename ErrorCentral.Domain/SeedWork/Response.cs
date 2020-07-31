@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ErrorCentral.Domain.SeedWork
 {
-    public class Response<T> 
+    public class Response<T>
     {
         public Response(T data, bool success, string[] errors)
         {
