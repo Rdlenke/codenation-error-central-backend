@@ -63,29 +63,44 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll()
+        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll([FromQuery(Name = "environment")] EEnvironment environment)
         {
-            Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
-
-            if (model.Success == false)
+            if (environment == default)
             {
-                return NotFound(model);
-            }
+                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
 
-            return Ok(model);
+                if (model.Success == false)
+                {
+                    return NotFound(model);
+                }
+
+                return Ok(model);
+
+            }
+            else
+            {
+                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
+
+                if (model.Success == false)
+                {
+                    return NotFound(model);
+                }
+
+                return Ok(model);
+            }
         }
 
-        [HttpGet("{environment}")]
-        public ActionResult<Response<List<EnvironmentLogErrorsViewModel>>> GetByEnvironment(EEnvironment environment)
-        {
-            Response<List<EnvironmentLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
+        //[HttpGet()]
+        //public ActionResult<Response<List<ListLogErrorsViewModel>>> GetByEnvironment([FromQuery(Name = "environment")]EEnvironment environment)
+        //{
+        //    Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
 
-            if (model.Success == false)
-            {
-                return NotFound(model);
-            }
+        //    if (model.Success == false)
+        //    {
+        //        return NotFound(model);
+        //    }
 
-            return Ok(model);
-        }
+        //    return Ok(model);
+        //}
     }
 }

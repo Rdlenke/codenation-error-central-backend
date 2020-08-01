@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ErrorCentral.Application.Services
 {
@@ -77,51 +78,45 @@ namespace ErrorCentral.Application.Services
             }
 
             var logErrorsViewModel = new List<ListLogErrorsViewModel>();
-            foreach (LogError logError in logErrors)
-            {
-                ListLogErrorsViewModel model = new ListLogErrorsViewModel(
-                userId: logError.UserId,
-                details: logError.Details,
-                level: logError.Level,
-                createdAt: logError.CreatedAt,
-                source: logError.Source,
-                events: logError.Events
-                );
 
-                logErrorsViewModel.Add(model);
-            }
+            var listLogErrors = logErrors
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level:x.Key.Level, 
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title, 
+                                                        userId: x.Key.UserId, 
+                                                        events: x.Count()))
+                .ToList();
 
             return new Response<List<ListLogErrorsViewModel>>(
-                data: logErrorsViewModel, success: true, errors: null);
+                data: listLogErrors, success: true, errors: null);
         }
 
-        public Response<List<EnvironmentLogErrorsViewModel>> GetByEnvironment(EEnvironment environment)
+        public Response<List<ListLogErrorsViewModel>> GetByEnvironment(EEnvironment environment)
         {
             var environmentLogErrors = _logErrorRepository.GetByEnvironment(environment);
 
             if (environmentLogErrors == null)
             {
-                return new Response<List<EnvironmentLogErrorsViewModel>>(
+                return new Response<List<ListLogErrorsViewModel>>(
                     success: false,
                     errors: new[] { "There are no errors to show" });
             }
 
-            var environmentErrorsViewModel = new List<EnvironmentLogErrorsViewModel>();
-            foreach (LogError logError in environmentLogErrors)
-            {
-                EnvironmentLogErrorsViewModel model = new EnvironmentLogErrorsViewModel(
-                userId: logError.UserId,
-                details: logError.Details,
-                level: logError.Level,
-                createdAt: logError.CreatedAt,
-                source: logError.Source,
-                events: logError.Events
-                );
+            var environmentErrorsViewModel = new List<ListLogErrorsViewModel>();
 
-                environmentErrorsViewModel.Add(model);
-            }
+            var listLogErrors = environmentLogErrors
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        events: x.Count()))
+                .ToList();
 
-            return new Response<List<EnvironmentLogErrorsViewModel>>(
+            return new Response<List<ListLogErrorsViewModel>>(
                 data: environmentErrorsViewModel, success: true, errors: null);
         }
     }

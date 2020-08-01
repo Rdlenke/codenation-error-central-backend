@@ -11,25 +11,24 @@ namespace ErrorCentral.Application.ViewModels.LogError
     {
         public int UserId { get; set; }
 
-        public string Details { get; set; }
-
         public ELevel Level { get; set; }
 
-        public DateTimeOffset CreatedAt { get; set; }
+        public EEnvironment Environment { get; set; }
 
         public string Source { get; set; }
 
         public int Events { get; set; }
 
+        public string Title { get; set; }
 
-        public ListLogErrorsViewModel(int userId, string details, ELevel level, DateTimeOffset createdAt, string source, int events)
+        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, int events)
         {
             UserId = userId;
-            Details = details;
+            Title = title;
             Level = level;
-            CreatedAt = createdAt;
             Source = source;
             Events = events;
+            Environment = environment;
         }
     }
 }

@@ -12,6 +12,6 @@ namespace ErrorCentral.Application.Services
         Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default);
         Task<Response<LogErrorDetailsViewModel>> GetLogError(int id);
         Response<List<ListLogErrorsViewModel>> GetAll();
-        Response<List<EnvironmentLogErrorsViewModel>> GetByEnvironment(EEnvironment Environment);
+        Response<List<ListLogErrorsViewModel>> GetByEnvironment(EEnvironment Environment);
     }
 }
