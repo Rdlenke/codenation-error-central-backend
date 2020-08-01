@@ -4,10 +4,14 @@ language: csharp
 branches:
   only:
     - master
+    - develop
 
 solution: ErrorCentral.sln
 dotnet: 3.1
 script:
   - dotnet restore
   - dotnet build -c release
-  - dotnet test -c release -l trx -r TestsResults
+  - dotnet test -c release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
