@@ -6,6 +6,7 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
 {
     public class LogError : Entity, IAggregateRoot
     {
+
         public int UserId { get; private set; }
         public string Title { get; private set; }
         public string Details { get; private set; }
@@ -26,12 +27,12 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
 
         public LogError(int userId, string title, string details, string source, ELevel level, EEnvironment environment) : this()
         {
-            this.UserId = userId;
+            UserId = userId;
             this.Title = !string.IsNullOrWhiteSpace(title) ? title : throw new ArgumentNullException(nameof(title));
-            this.Details = details;
-            this.Source = source;
-            this.Level = level;
-            this.Environment = environment;
+            Details = details;
+            Source = source;
+            Level = level;
+            Environment = environment;
         }
     }
 }

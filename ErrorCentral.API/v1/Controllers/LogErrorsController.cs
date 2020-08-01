@@ -3,9 +3,12 @@ using System.Net;
 using System.Threading.Tasks;
 using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.LogError;
+using ErrorCentral.Domain.SeedWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -46,6 +49,59 @@ namespace ErrorCentral.API.v1.Controllers
             return Ok();
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetLogError(int id)
+        {
+            Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
+
+            if (model.Success == false)
+            {
+                return NotFound(model);
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet]
+        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll([FromQuery(Name = "environment")] EEnvironment environment)
+        {
+            if (environment == default)
+            {
+                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
+
+                if (model.Success == false)
+                {
+                    return NotFound(model);
+                }
+
+                return Ok(model);
+
+            }
+            else
+            {
+                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
+
+                if (model.Success == false)
+                {
+                    return NotFound(model);
+                }
+
+                return Ok(model);
+            }
+        }
+
+        //[HttpGet()]
+        //public ActionResult<Response<List<ListLogErrorsViewModel>>> GetByEnvironment([FromQuery(Name = "environment")]EEnvironment environment)
+        //{
+        //    Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
+
+        //    if (model.Success == false)
+        //    {
+        //        return NotFound(model);
+        //    }
+
+        //    return Ok(model);
+        //}
         [HttpDelete("{id:int}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
