@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Application.ViewModels.Misc;
+using System.Runtime.InteropServices;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -63,45 +65,18 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll([FromQuery(Name = "environment")] EEnvironment environment)
+        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll([FromQuery, Optional] GetLogErrorsQueryViewModel query)
         {
-            if (environment == default)
+            Response<List<ListLogErrorsViewModel>> model = _logErrorService.Get(query); 
+
+            if (model.Success == false)
             {
-                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetAll();
-
-                if (model.Success == false)
-                {
-                    return NotFound(model);
-                }
-
-                return Ok(model);
-
+                return NotFound(model);
             }
-            else
-            {
-                Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
 
-                if (model.Success == false)
-                {
-                    return NotFound(model);
-                }
-
-                return Ok(model);
-            }
+            return Ok(model);
         }
 
-        //[HttpGet()]
-        //public ActionResult<Response<List<ListLogErrorsViewModel>>> GetByEnvironment([FromQuery(Name = "environment")]EEnvironment environment)
-        //{
-        //    Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
-
-        //    if (model.Success == false)
-        //    {
-        //        return NotFound(model);
-        //    }
-
-        //    return Ok(model);
-        //}
         [HttpDelete("{id:int}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

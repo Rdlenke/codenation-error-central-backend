@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using ErrorCentral.Application.ViewModels.Misc;
 
 namespace ErrorCentral.Application.Services
 {
@@ -11,8 +12,7 @@ namespace ErrorCentral.Application.Services
     {
         Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default);
         Task<Response<LogErrorDetailsViewModel>> GetLogError(int id);
-        Response<List<ListLogErrorsViewModel>> GetAll();
-        Response<List<ListLogErrorsViewModel>> GetByEnvironment(EEnvironment Environment);
+        Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query);
         Task<bool> RemoveAsync(int id);
     }
 }

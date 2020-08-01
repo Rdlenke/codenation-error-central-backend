@@ -21,12 +21,15 @@ namespace ErrorCentral.Application.ViewModels.LogError
 
         public string Title { get; set; }
 
-        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, int events)
+        public string Details { get; set; }
+
+        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, string details, int events)
         {
             UserId = userId;
             Title = title;
             Level = level;
             Source = source;
+            Details = details;
             Events = events;
             Environment = environment;
         }

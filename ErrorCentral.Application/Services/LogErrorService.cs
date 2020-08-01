@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using ErrorCentral.Application.ViewModels.Misc;
+using System.Text.RegularExpressions;
 
 namespace ErrorCentral.Application.Services
 {
@@ -66,7 +68,7 @@ namespace ErrorCentral.Application.Services
                 data: model, success: true, errors: null);
         }
 
-        public Response<List<ListLogErrorsViewModel>> GetAll()
+        public Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query = null)
         {
             var logErrors = _logErrorRepository.GetList();
 
@@ -77,48 +79,65 @@ namespace ErrorCentral.Application.Services
                     errors: new[] { "There are no errors to show" });
             }
 
-            var logErrorsViewModel = new List<ListLogErrorsViewModel>();
-
             var listLogErrors = logErrors
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level:x.Key.Level, 
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title, 
-                                                        userId: x.Key.UserId, 
-                                                        events: x.Count()))
-                .ToList();
-
-            return new Response<List<ListLogErrorsViewModel>>(
-                data: listLogErrors, success: true, errors: null);
-        }
-
-        public Response<List<ListLogErrorsViewModel>> GetByEnvironment(EEnvironment environment)
-        {
-            var environmentLogErrors = _logErrorRepository.GetByEnvironment(environment);
-
-            if (environmentLogErrors == null)
-            {
-                return new Response<List<ListLogErrorsViewModel>>(
-                    success: false,
-                    errors: new[] { "There are no errors to show" });
-            }
-
-            var environmentErrorsViewModel = new List<ListLogErrorsViewModel>();
-
-            var listLogErrors = environmentLogErrors
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId })
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
                 .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
                                                         level: x.Key.Level,
                                                         source: x.Key.Source,
                                                         title: x.Key.Title,
                                                         userId: x.Key.UserId,
-                                                        events: x.Count()))
-                .ToList();
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+             
+
+            if(query.Environment != 0)
+            {
+                listLogErrors = listLogErrors.Where(x => x.Environment == query.Environment);
+            }
+
+            if(query.Search != null)
+            {
+                Regex rx = new Regex(query.Search, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                switch(query.SearchBy)
+                {
+                    case 0:
+                        break;
+                    case ESearchBy.LEVEL:
+                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Level.ToFriendlyString()));
+                        break;
+                    case ESearchBy.DETAILS:
+                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Details));
+                        break;
+                    case ESearchBy.SOURCE:
+                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Source));
+                        break;
+                    default:
+                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Details));
+                        break;
+                }
+
+            }
+
+            switch (query.SortBy)
+            {
+                case 0:
+                    break;
+                case ESortBy.FREQUENCY:
+                    listLogErrors = listLogErrors.OrderByDescending(x => x.Events);
+                    break;
+                case ESortBy.LEVEL:
+                    listLogErrors = listLogErrors.OrderByDescending(x => x.Level);
+                    break;
+                default:
+                    break;
+            }
 
             return new Response<List<ListLogErrorsViewModel>>(
-                data: environmentErrorsViewModel, success: true, errors: null);
+                    data: listLogErrors.ToList(), success: true, errors: null);
         }
+
+
         public async Task<bool> RemoveAsync(int id)
         {
             var logError = await _logErrorRepository.GetByIdAsync(id);
