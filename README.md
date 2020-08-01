@@ -79,6 +79,29 @@ Gerar um script sql das alterações contidas na migrate:
 
 #### 3. Execução dos Testes
 
--Dotnet
+- Dotnet
 
       dotnet test
+
+
+#### 4. Cobertura dos Testes
+
+- Coverlet
+
+    Entrar na pasta de testes:
+
+        cd ErrorCentral.UnitTests
+
+    Gerar arquivo de cobertura e visualizar resultados:
+        
+        - Linux:
+
+            dotnet test -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura
+
+        - Windows:
+
+            dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+
+    Gerar relatório de cobertura do arquivo gerado:
+
+        reportgenerator "-reports:coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
