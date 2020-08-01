@@ -2,6 +2,7 @@
 # Central de Erros
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/2c89f7fac35b639d8ae9/maintainability)](https://codeclimate.com/github/Rdlenke/codenation-error-central-backend/maintainability)
+[![codecov](https://codecov.io/gh/Rdlenke/codenation-error-central-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/Rdlenke/codenation-error-central-backend)
 
 ## Sobre o Projeto
 
