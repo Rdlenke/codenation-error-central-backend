@@ -1,4 +1,4 @@
-﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+﻿﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -37,5 +37,16 @@ namespace ErrorCentral.Infrastructure.Repositories
         {
             return _context.LogErrors.Where(x => x.Environment == environment).ToList();
         }
+
+        public LogError Update(LogError logError)
+        {
+            return _context.LogErrors.Update(logError).Entity;
+        }
+
+        public async Task<LogError> GetByIdAsync(int id)
+        {
+            return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id);
+        }
     }
 }
+

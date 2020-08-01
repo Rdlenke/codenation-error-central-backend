@@ -119,5 +119,17 @@ namespace ErrorCentral.Application.Services
             return new Response<List<ListLogErrorsViewModel>>(
                 data: environmentErrorsViewModel, success: true, errors: null);
         }
+        public async Task<bool> RemoveAsync(int id)
+        {
+            var logError = await _logErrorRepository.GetByIdAsync(id);
+            if (logError == null)
+                throw new ArgumentException("Invalid number of LogError");
+
+            logError.Remove();
+            _logErrorRepository.Update(logError);
+
+            return await _logErrorRepository.UnitOfWork
+                .SaveEntitiesAsync();
+        }
     }
 }

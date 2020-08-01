@@ -13,5 +13,6 @@ namespace ErrorCentral.Application.Services
         Task<Response<LogErrorDetailsViewModel>> GetLogError(int id);
         Response<List<ListLogErrorsViewModel>> GetAll();
         Response<List<ListLogErrorsViewModel>> GetByEnvironment(EEnvironment Environment);
+        Task<bool> RemoveAsync(int id);
     }
 }
