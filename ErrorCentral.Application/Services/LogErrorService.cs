@@ -37,5 +37,18 @@ namespace ErrorCentral.Application.Services
             return await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync(cancellationToken);
         }
+
+        public async Task<bool> RemoveAsync(int id)
+        {
+            var logError = await _logErrorRepository.GetByIdAsync(id);
+            if (logError == null)
+                throw new ArgumentException("Invalid number of LogError");
+
+            logError.Remove();
+            _logErrorRepository.Update(logError);
+
+            return await _logErrorRepository.UnitOfWork
+                .SaveEntitiesAsync();
+        }
     }
 }
