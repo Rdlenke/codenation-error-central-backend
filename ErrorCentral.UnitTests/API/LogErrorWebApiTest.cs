@@ -92,5 +92,24 @@ namespace ErrorCentral.UnitTests.API
             actionResult.StatusCode.Should()
                 .Be((int)System.Net.HttpStatusCode.BadRequest);
         }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Remove_log_error_bad_request(int id)
+        {
+            //Arrange
+            _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
+                .Returns(Task.FromResult(false));
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.RemoveLogErrorAsync(id) as BadRequestResult;
+
+            //Assert
+            actionResult.StatusCode.Should()
+                .Be((int)System.Net.HttpStatusCode.BadRequest);
+        }
     }
 }
