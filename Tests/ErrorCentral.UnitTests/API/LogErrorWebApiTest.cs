@@ -28,20 +28,22 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_success()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel(
-                userId: 1,
-                title: "fakeTitle",
-                details: "fakeDetails",
-                source: "localhost",
-                level: ELevel.Debug,
-                environment: EEnvironment.Development);
+            var logError = new CreateLogErrorViewModel()
+            {
+                Title = "Run-time exception (line 8): Attempted to divide by zero.",
+                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
+                Source = "http://production.com/",
+                Level = ELevel.Error,
+                Environment = EEnvironment.Production,
+                UserId = 1
+            };
 
             _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
                 .Returns(Task.FromResult(true));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as OkResult;
+            var actionResult = await logErrorController.PostAsync(logError) as OkResult;
 
             //Assert
             actionResult.StatusCode.Should()
@@ -53,19 +55,21 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_bad_request()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel(
-                userId: 1,
-                title: "fakeTitle",
-                details: "fakeDetails",
-                source: "localhost",
-                level: ELevel.Debug,
-                environment: EEnvironment.Development);
+            var logError = new CreateLogErrorViewModel()
+            {
+                Title = "Run-time exception (line 8): Attempted to divide by zero.",
+                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
+                Source = "http://production.com/",
+                Level = ELevel.Error,
+                Environment = EEnvironment.Production,
+                UserId = 1
+            };
             _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
                 .Returns(Task.FromResult(false));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
 
             //Assert
             actionResult.StatusCode.Should()
@@ -77,17 +81,19 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_with_invalid_view_model_bad_request()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel(
-                userId: 1,
-                title: null,
-                details: "fakeDetails",
-                source: null,
-                level: ELevel.Debug,
-                environment: EEnvironment.Development);
+            var logError = new CreateLogErrorViewModel()
+            {
+                Title = "Run-time exception (line 8): Attempted to divide by zero.",
+                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
+                Source = "http://production.com/",
+                Level = ELevel.Error,
+                Environment = EEnvironment.Production,
+                UserId = 1
+            };
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.CreateLogErrorAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
 
             //Assert
             actionResult.StatusCode.Should()
@@ -113,7 +119,7 @@ namespace ErrorCentral.UnitTests.API
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.GetLogError(id);
+            var actionResult = await logErrorController.GetAsync(id);
             var result = actionResult.Result as NotFoundObjectResult;
 
             //Asserts
@@ -133,7 +139,7 @@ namespace ErrorCentral.UnitTests.API
                 .Returns(Task.FromResult(false));
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.RemoveLogErrorAsync(id) as BadRequestResult;
+            var actionResult = await logErrorController.DeleteAsync(id) as BadRequestResult;
 
             //Assert
             actionResult.StatusCode.Should()
