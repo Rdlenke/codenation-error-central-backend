@@ -17,17 +17,5 @@ namespace ErrorCentral.Application.ViewModels.LogError
         public ELevel Level { get; set; }
         [Required]
         public EEnvironment Environment { get; set; }
-
-        protected CreateLogErrorViewModel() { }
-
-        public CreateLogErrorViewModel(int userId, string title, string details, string source, ELevel level, EEnvironment environment)
-        {
-            this.UserId = userId;
-            this.Title = title;
-            this.Details = details;
-            this.Source = source;
-            this.Level = level;
-            this.Environment = environment;
-        }
     }
 }

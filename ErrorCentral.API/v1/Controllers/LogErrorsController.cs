@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ErrorCentral.API.v1.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class LogErrorsController : ControllerBase
@@ -28,7 +30,7 @@ namespace ErrorCentral.API.v1.Controllers
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateLogErrorAsync([FromBody] CreateLogErrorViewModel logError)
+        public async Task<IActionResult> PostAsync([FromBody] CreateLogErrorViewModel logError)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -50,7 +52,7 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetLogError(int id)
+        public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetAsync(int id)
         {
             Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
 
@@ -90,22 +92,10 @@ namespace ErrorCentral.API.v1.Controllers
             }
         }
 
-        //[HttpGet()]
-        //public ActionResult<Response<List<ListLogErrorsViewModel>>> GetByEnvironment([FromQuery(Name = "environment")]EEnvironment environment)
-        //{
-        //    Response<List<ListLogErrorsViewModel>> model = _logErrorService.GetByEnvironment(environment);
-
-        //    if (model.Success == false)
-        //    {
-        //        return NotFound(model);
-        //    }
-
-        //    return Ok(model);
-        //}
         [HttpDelete("{id:int}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveLogErrorAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             _logger.LogInformation(
                 "----- Sending request: {ServiceName} - {ServiceMethod}: ({@Id})",

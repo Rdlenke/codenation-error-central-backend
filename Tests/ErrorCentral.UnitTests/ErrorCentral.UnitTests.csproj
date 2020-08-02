@@ -33,9 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ErrorCentral.API\ErrorCentral.API.csproj" />
-    <ProjectReference Include="..\ErrorCentral.Application\ErrorCentral.Application.csproj" />
-    <ProjectReference Include="..\ErrorCentral.Domain\ErrorCentral.Domain.csproj" />
+    <ProjectReference Include="..\..\ErrorCentral.API\ErrorCentral.API.csproj" />
+    <ProjectReference Include="..\..\ErrorCentral.Application\ErrorCentral.Application.csproj" />
+    <ProjectReference Include="..\..\ErrorCentral.Domain\ErrorCentral.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,6 @@ using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using FluentAssertions;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -27,8 +26,8 @@ namespace ErrorCentral.UnitTests.Application
         [Trait("Operation", "Create")]
         public void Create_handle_throw_exception_if_userId_not_found()
         {
-            var fakeOrderCmd = FakeLogErrorRequest(new Dictionary<string, object>
-            { ["title"] = "Titulo" });
+            // Arrange
+            var logError = FakeLogErrorRequest();
 
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult<User>(It.IsAny<User>()));
@@ -36,7 +35,7 @@ namespace ErrorCentral.UnitTests.Application
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var cltToken = new CancellationToken();
-            Func<Task> act = async () => { await service.CreateAsync(fakeOrderCmd, cltToken); };
+            Func<Task> act = async () => { await service.CreateAsync(logError, cltToken); };
 
             //Assert
             act.Should().Throw<ArgumentException>()
@@ -47,9 +46,8 @@ namespace ErrorCentral.UnitTests.Application
         [Trait("Operation", "Create")]
         public async Task Create_handle_return_false_if_log_error_is_not_persisted()
         {
-
-            var fakeOrderCmd = FakeLogErrorRequest(new Dictionary<string, object>
-            { ["title"] = "Titulo" });
+            // Arrange
+            var logError = FakeLogErrorRequest();
 
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveChangesAsync(default(CancellationToken)))
                 .Returns(Task.FromResult(1));
@@ -57,36 +55,38 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult<User>(FakeUser()));
 
-            //Act
+            // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var cltToken = new CancellationToken();
-            var result = await service.CreateAsync(fakeOrderCmd, cltToken);
+            var result = await service.CreateAsync(logError, cltToken);
 
-            //Assert
+            // Assert
             result
                 .Should()
                 .BeFalse();
         }
 
-        private User FakeUser(Dictionary<string, object> args = null)
+        private User FakeUser()
         {
             return new User(
-                password: args != null && args.ContainsKey("password") ? (string)args["pasword"] : null,
-                firstName: args != null && args.ContainsKey("firstName") ? (string)args["firstName"] : null,
-                lastName: args != null && args.ContainsKey("lastName") ? (string)args["lastName"] : null,
-                email: args != null && args.ContainsKey("email") ? (string)args["email"] : null
+                password: "12345",
+                firstName: "João",
+                lastName: "Alves",
+                email: "joao@email.com"
             );
         }
 
-        private CreateLogErrorViewModel FakeLogErrorRequest(Dictionary<string, object> args = null)
+        private CreateLogErrorViewModel FakeLogErrorRequest()
         {
-            return new CreateLogErrorViewModel(
-                userId: args != null && args.ContainsKey("userId") ? (int)args["userId"] : 0,
-                title: args != null && args.ContainsKey("title") ? (string)args["title"] : null,
-                details: args != null && args.ContainsKey("details") ? (string)args["details"] : null,
-                source: args != null && args.ContainsKey("source") ? (string)args["source"] : null,
-                level: args != null && args.ContainsKey("level") ? (ELevel)args["level"] : ELevel.Debug,
-                environment: args != null && args.ContainsKey("environment") ? (EEnvironment)args["environment"] : EEnvironment.Development);
+            return new CreateLogErrorViewModel()
+            {
+                Title = "Run-time exception (line 8): Attempted to divide by zero.",
+                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
+                Source = "http://production.com/",
+                Level = ELevel.Error,
+                Environment = EEnvironment.Production,
+                UserId = 1
+            };
         }
     }
 }
