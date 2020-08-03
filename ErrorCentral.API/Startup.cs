@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using ErrorCentral.Application.Services;
 using ErrorCentral.Application.Settings;
@@ -19,6 +20,7 @@ using Microsoft.OpenApi.Models;
 
 namespace ErrorCentral.API
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -71,6 +73,7 @@ namespace ErrorCentral.API
         }
     }
 
+    [ExcludeFromCodeCoverage]
     static class CustomExtensionsMethods
     {
         public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -155,6 +158,7 @@ namespace ErrorCentral.API
             return services;
         }
 
+        [ExcludeFromCodeCoverage]
         public static void AddCustomApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
