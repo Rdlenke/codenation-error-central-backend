@@ -68,7 +68,7 @@ namespace ErrorCentral.Application.Services
                 data: model, success: true, errors: null);
         }
 
-        public Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query = null)
+        public Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query)
         {
             var logErrors = _logErrorRepository.GetList();
 
@@ -102,6 +102,7 @@ namespace ErrorCentral.Application.Services
                 switch(query.SearchBy)
                 {
                     case 0:
+                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Details));
                         break;
                     case ESearchBy.LEVEL:
                         listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Level.ToFriendlyString()));
@@ -111,9 +112,6 @@ namespace ErrorCentral.Application.Services
                         break;
                     case ESearchBy.SOURCE:
                         listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Source));
-                        break;
-                    default:
-                        listLogErrors = listLogErrors.Where(x => rx.IsMatch(x.Details));
                         break;
                 }
 
