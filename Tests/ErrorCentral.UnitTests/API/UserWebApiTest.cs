@@ -30,6 +30,28 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
+        public void Return_exception_to_initial_controller_without_service()
+        {
+            // Act
+            Action act = () => new UserController(null, _loggerMock.Object);
+
+            // Assert
+            act.Should().Throw<ArgumentNullException>()
+                .WithMessage("Value cannot be null. (Parameter 'userService')");
+        }
+
+        [Fact]
+        public void Return_exception_to_initial_controller_without_logger()
+        {
+            // Act
+            Action act = () => new UserController(_userServiceMock.Object, null);
+
+            // Assert
+            act.Should().Throw<ArgumentNullException>()
+                .WithMessage("Value cannot be null. (Parameter 'logger')");
+        }
+
+        [Fact]
         [Trait("POST - Operation", "Create")]
         public async Task Create_User_Success()
         {

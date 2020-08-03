@@ -9,6 +9,7 @@ using ErrorCentral.Application.ViewModels.LogError;
 using FluentAssertions;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.SeedWork;
+using System;
 
 namespace ErrorCentral.UnitTests.API
 {
@@ -21,6 +22,28 @@ namespace ErrorCentral.UnitTests.API
         {
             _logErrorServiceMock = new Mock<ILogErrorService>();
             _loggerMock = new Mock<ILogger<LogErrorsController>>();
+        }
+
+        [Fact]
+        public void Return_exception_to_initial_controller_without_service()
+        {
+            // Act
+            Action act = () => new LogErrorsController(null, _loggerMock.Object);
+
+            // Assert
+            act.Should().Throw<ArgumentNullException>()
+                .WithMessage("Value cannot be null. (Parameter 'logErrorService')");
+        }
+
+        [Fact]
+        public void Return_exception_to_initial_controller_without_logger()
+        {
+            // Act
+            Action act = () => new LogErrorsController(_logErrorServiceMock.Object, null);
+
+            // Assert
+            act.Should().Throw<ArgumentNullException>()
+                .WithMessage("Value cannot be null. (Parameter 'logger')");
         }
 
         [Fact]
