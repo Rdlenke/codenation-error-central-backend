@@ -1,10 +1,15 @@
 ﻿using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.LogError;
+using ErrorCentral.Application.ViewModels.Misc;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using ErrorCentral.Domain.SeedWork;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -64,6 +69,339 @@ namespace ErrorCentral.UnitTests.Application
             result
                 .Should()
                 .BeFalse();
+        }
+
+        [Fact(DisplayName = "Get - Return null if couldn't get logError")]
+        public void Get_return_null_if_couldnt_get_logerror()
+        {
+            // Arrange
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns<List<LogError>>(null);
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(
+                    success: false,
+                    errors: new[] { "There are no errors to show" });
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(new GetLogErrorsQueryViewModel());
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return when there is no query")]
+        public void Get_return_when_there_is_no_query()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() { 
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development)
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var viewModel = new ListLogErrorsViewModel(environment: repositoryReturn[0].Environment,
+                                                        level: repositoryReturn[0].Level,
+                                                        source: repositoryReturn[0].Source,
+                                                        title: repositoryReturn[0].Title,
+                                                        userId: repositoryReturn[0].UserId,
+                                                        details: repositoryReturn[0].Details,
+                                                        events: 1);
+
+            var list = new List<ListLogErrorsViewModel>() { viewModel };
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: list, success: true, errors: null);
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(new GetLogErrorsQueryViewModel());
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return filtered by Environment")]
+        public void Get_return_filtered_by_environment()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).Where(x => x.Environment == EEnvironment.Development).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.Environment = EEnvironment.Development;
+
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return filtered by search (level)")]
+        public void Get_return_filtered_by_search_default()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Dotails", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Details")).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.Search = "Details";
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return filtered by search (level)")]
+        public void Get_return_filtered_by_search_level()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).Where(x => x.Level == ELevel.Debug).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.Search = "Debug";
+            query.SearchBy = ESearchBy.LEVEL;
+
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return filtered by search (details)")]
+        public void Get_return_filtered_by_search_details()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Dotails", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Dotails")).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.Search = "Dotails";
+            query.SearchBy = ESearchBy.DETAILS;
+
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return filtered by search (source)")]
+        public void Get_return_filtered_by_search_source()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).Where(x => x.Source.Equals("127.0.1.1")).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.Search = "127.0.1.1";
+            query.SearchBy = ESearchBy.SOURCE;
+
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return sorted (events)")]
+        public void Get_return_sorted_events()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Events).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.SortBy = ESortBy.FREQUENCY;
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Get - Return sorted (level)")]
+
+        public void Get_return_sorted_level()
+        {
+            // Arrange
+            List<LogError> repositoryReturn = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
+            };
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
+                .Returns(repositoryReturn);
+
+            var listLogErrors = repositoryReturn
+                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
+                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
+                                                        level: x.Key.Level,
+                                                        source: x.Key.Source,
+                                                        title: x.Key.Title,
+                                                        userId: x.Key.UserId,
+                                                        details: x.Key.Details,
+                                                        events: x.Count()));
+
+            var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Level).ToList();
+
+            var expected = new Response<List<ListLogErrorsViewModel>>(data: obtained, success: true, errors: null);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel();
+            query.SortBy = ESortBy.LEVEL;
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = service.Get(query);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
         }
 
         private User FakeUser()

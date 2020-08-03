@@ -9,6 +9,10 @@ using ErrorCentral.Application.ViewModels.LogError;
 using FluentAssertions;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.SeedWork;
+using System.Collections.Generic;
+using System.Net;
+using ErrorCentral.Application.ViewModels.Misc;
+
 using System;
 
 namespace ErrorCentral.UnitTests.API
@@ -167,6 +171,124 @@ namespace ErrorCentral.UnitTests.API
             //Assert
             actionResult.StatusCode.Should()
                 .Be((int)System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [Theory]
+        [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100)]
+        [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300)]
+        [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300)]
+        public void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events)
+        {
+            //Arrange
+            List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
+
+            listLogErrorsViewModel.Add(
+                new ListLogErrorsViewModel(
+                    userId: userId,
+                    title: title,
+                    environment: environment,
+                    level: level,
+                    source: source,
+                    details: details,
+                    events: events
+                ));
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrorsViewModel, success: true, errors: null);
+
+            _logErrorServiceMock.Setup(x => x.Get(null))
+                .Returns(response);
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = logErrorController.GetAll();
+
+            var result = actionResult.Result as OkObjectResult;
+
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.OK);
+
+            var obtainedResponse = result.Value as Response<List<ListLogErrorsViewModel>>;
+
+            obtainedResponse.Should()
+                .BeEquivalentTo(response);
+        }
+
+        [Fact]
+        public void Get_all_errors_by_environment()
+        {
+            //Arrange
+            List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
+
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Development, ELevel.Warning, "Source", "Details", 300));
+
+            List<ListLogErrorsViewModel> expected = new List<ListLogErrorsViewModel>();
+            listLogErrorsViewModel.Add(listLogErrorsViewModel[0]);
+            listLogErrorsViewModel.Add(listLogErrorsViewModel[1]);
+
+            GetLogErrorsQueryViewModel query = new GetLogErrorsQueryViewModel { Environment = EEnvironment.Production };
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: expected, success: true, errors: null);
+
+            _logErrorServiceMock.Setup(x => x.Get(query))
+                .Returns(response);
+
+            // Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = logErrorController.GetAll(query);
+
+            var result = actionResult.Result as OkObjectResult;
+
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.OK);
+
+            var obtainedResponse = result.Value as Response<List<ListLogErrorsViewModel>>;
+
+            obtainedResponse.Should()
+                .BeEquivalentTo(response);
+        }
+
+        [Fact]
+        public void Get_all_errors_fail()
+        {
+            //Arrange
+            _logErrorServiceMock.Setup(x => x.Get(null))
+                .Returns(new Response<List<ListLogErrorsViewModel>>(success: false, errors: null));
+
+            //Act
+
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = logErrorController.GetAll();
+
+            var result = actionResult.Result as NotFoundObjectResult;
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.NotFound);
+        }
+
+        private static ListLogErrorsViewModel CreateListLogErrorsViewModel(int userId,
+            string title,
+            EEnvironment environment, 
+            ELevel level, 
+            string source, 
+            string details, 
+            int events)
+        {
+            return new ListLogErrorsViewModel(
+                    userId: userId,
+                    title: title,
+                    environment: environment,
+                    level: level,
+                    source: source,
+                    details: details,
+                    events: events
+                );
         }
     }
 }
