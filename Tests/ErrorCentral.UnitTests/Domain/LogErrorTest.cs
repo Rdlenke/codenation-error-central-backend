@@ -86,5 +86,29 @@ namespace ErrorCentral.UnitTests.Domain
             act.Should().Throw<ArgumentNullException>()
                 .WithMessage("Value cannot be null. (Parameter 'title')");
         }
+
+        [Fact]
+        public void Remove_log_error_sucess()
+        {
+            // Arrange
+            var logError = FakeLogError();
+
+            // Act
+            logError.Remove();
+
+            logError.Removed.Should().BeTrue();
+        }
+
+        private LogError FakeLogError()
+        {
+            return new LogError(
+                userId: 1,
+                title: "Run-time exception (line 8): Attempted to divide by zero.",
+                details: "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
+                source: "http://production.com/",
+                level: ELevel.Error,
+                environment: EEnvironment.Production
+            );
+        }
     }
 }

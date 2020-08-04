@@ -95,21 +95,19 @@ namespace ErrorCentral.API.v1.Controllers
         [HttpDelete("{id:int}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<ActionResult<Response<int>>> DeleteAsync([FromRoute] int id)
         {
             _logger.LogInformation(
                 "----- Sending request: {ServiceName} - {ServiceMethod}: ({@Id})",
                 nameof(ILogErrorService),
-                "RemoveAsync",
+                "DeleteAsync",
                 id);
 
             var result = await _logErrorService.RemoveAsync(id);
-            if (!result)
-            {
-                return BadRequest();
-            }
+            if (!result.Success)
+                return BadRequest(result);
 
-            return Ok();
+            return Ok(result);
         }
     }
 }

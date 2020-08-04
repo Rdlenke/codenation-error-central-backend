@@ -1,14 +1,11 @@
 ﻿using ErrorCentral.API.v1.Controllers;
 using ErrorCentral.Application.ViewModels.User;
-using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 

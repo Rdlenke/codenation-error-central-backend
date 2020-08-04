@@ -19,8 +19,14 @@ namespace ErrorCentral.Domain.SeedWork
             Errors = errors;
         }
 
-        public string[] Errors { get; set; }
-        public bool Success { get; set; }
-        public T Data { get; set; }
+        public Response(T data, bool success)
+        {
+            Data = data;
+            Success = success;
+        }
+
+        public string[] Errors { get; private set; }
+        public bool Success { get; private set; }
+        public T Data { get; private set; }
     }
 }
