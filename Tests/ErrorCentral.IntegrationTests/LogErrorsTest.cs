@@ -23,61 +23,59 @@ namespace ErrorCentral.IntegrationTests
         }
 
         #region Sem Token
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestGet(int id)
-        {
-            // Act
-            var response = await Client.GetAsync($"{baseUrl}/{id}");
+        //[Theory]
+        //[InlineData(1)]
+        //[InlineData(2)]
+        //[InlineData(3)]
+        //[InlineData(4)]
+        //public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestGet(int id)
+        //{
+        //    // Act
+        //    var response = await Client.GetAsync($"{baseUrl}/{id}");
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
+        //    // Assert
+        //    response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        //}
 
-        [Fact]
-        public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestGetAll()
-        {
-            // Act
-            var response = await Client.GetAsync($"{baseUrl}");
+        //[Fact]
+        //public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestGetAll()
+        //{
+        //    // Act
+        //    var response = await Client.GetAsync($"{baseUrl}");
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
+        //    // Assert
+        //    response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        //}
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestDelete(int id)
-        {
-            // Act
-            var response = await Client.DeleteAsync($"{baseUrl}/{id}");
+        //[Theory]
+        //[InlineData(1)]
+        //[InlineData(2)]
+        //[InlineData(3)]
+        //[InlineData(4)]
+        //public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestDelete(int id)
+        //{
+        //    // Act
+        //    var response = await Client.DeleteAsync($"{baseUrl}/{id}");
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
+        //    // Assert
+        //    response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        //}
 
-        [Fact]
-        public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestPost()
-        {
-            // Arrange
-            var jsonContent = GetValidNewLogErrorJson();
+        //[Fact]
+        //public async Task ReturnsNotAuthorizedWithoutTheTokenInRequestPost()
+        //{
+        //    // Arrange
+        //    var jsonContent = GetValidNewLogErrorJson();
 
-            // Act
-            var response = await Client.PostAsync($"{baseUrl}", jsonContent);
+        //    // Act
+        //    var response = await Client.PostAsync($"{baseUrl}", jsonContent);
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
+        //    // Assert
+        //    response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        //}
         #endregion
 
-        #region Com Token
 
-        #endregion
 
         #region Mock
         private StringContent GetValidNewLogErrorJson()
