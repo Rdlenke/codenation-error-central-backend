@@ -18,7 +18,7 @@ namespace ErrorCentral.Domain.SeedWork
                 _Id = value;
             }
         }
-        public bool Removed { get; set; }
+        public bool Removed { get; private set; }
 
         public virtual void Remove()
         {

@@ -154,26 +154,6 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Theory]
-        [Trait("Delete - Operation", "Remove")]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        public async Task Remove_log_error_bad_request(int id)
-        {
-            //Arrange
-            _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
-                .Returns(Task.FromResult(false));
-            //Act
-            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.DeleteAsync(id) as BadRequestResult;
-
-            //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.BadRequest);
-        }
-
-        [Theory]
         [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100)]
         [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300)]
         [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300)]
@@ -289,6 +269,59 @@ namespace ErrorCentral.UnitTests.API
                     details: details,
                     events: events
                 );
+        }
+
+        [Theory]
+        [Trait("Delete - Operation", "Delete")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Delete_log_error_bad_request(int id)
+        {
+            //Arrange
+            var response = new Response<int>(false, new[] { $"object with id {id} not found" });
+            _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.DeleteAsync(id);
+
+
+            //Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<int>>(badRequestResult.Value);
+            result.Success.Should().BeFalse();
+            result.Errors.Length.Should().Be(1);
+            result.Errors.Should().Equal(response.Errors);
+        }
+
+        [Theory]
+        [Trait("Delete - Operation", "Delete")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Delete_log_error_sucess(int id)
+        {
+            //Arrange
+            var response = new Response<int>(id, true);
+            _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.DeleteAsync(id);
+
+
+            //Assert
+            var okRequestResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            okRequestResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var result = Assert.IsType<Response<int>>(okRequestResult.Value);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeNull();
         }
     }
 }

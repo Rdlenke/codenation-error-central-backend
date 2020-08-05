@@ -14,8 +14,8 @@ namespace ErrorCentral.Application.Services
 {
     public class LogErrorService : ILogErrorService
     {
-        private ILogErrorRepository _logErrorRepository;
-        private IUserRepository _userRepository;
+        private readonly ILogErrorRepository _logErrorRepository;
+        private readonly IUserRepository _userRepository;
 
         public LogErrorService(ILogErrorRepository logErrorRepository, IUserRepository userRepository)
         {
@@ -136,17 +136,18 @@ namespace ErrorCentral.Application.Services
         }
 
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<Response<int>> RemoveAsync(int id)
         {
             var logError = await _logErrorRepository.GetByIdAsync(id);
             if (logError == null)
-                throw new ArgumentException("Invalid number of LogError");
+                return new Response<int>(false, new[] { $"object with id {id} not found" });
 
             logError.Remove();
             _logErrorRepository.Update(logError);
 
-            return await _logErrorRepository.UnitOfWork
+            var result = await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync();
+            return result ? new Response<int>(id, result) : new Response<int>(false, new[] { $"Error persisting database changes" });
         }
     }
 }
