@@ -55,7 +55,7 @@ namespace ErrorCentral.UnitTests.Application
             // Arrange
             var logError = FakeLogErrorRequest();
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveChangesAsync(default(CancellationToken)))
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveChangesAsync(default))
                 .Returns(Task.FromResult(1));
 
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
@@ -103,7 +103,7 @@ namespace ErrorCentral.UnitTests.Application
             // Arrange
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetByIdAsync(id))
                 .Returns(Task.FromResult(FakeLogError()));
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default(CancellationToken)))
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
                 .Returns(Task.FromResult(true));
 
             // Act
@@ -112,7 +112,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Assert
             _logErrorRepositoryMock.Verify(l => l.GetByIdAsync(id));
-            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default(CancellationToken)));
+            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
             result.Success.Should().BeTrue();
             result.Errors.Should().BeNull();
         }
@@ -127,7 +127,7 @@ namespace ErrorCentral.UnitTests.Application
             // Arrange
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetByIdAsync(id))
                 .Returns(Task.FromResult(FakeLogError()));
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default(CancellationToken)))
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
                 .Returns(Task.FromResult(false));
 
             // Act
@@ -136,7 +136,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Assert
             _logErrorRepositoryMock.Verify(l => l.GetByIdAsync(id));
-            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default(CancellationToken)));
+            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
             result.Success.Should().BeFalse();
             result.Errors.Should().Equal(new[] { $"Error persisting database changes" });
         }

@@ -14,8 +14,8 @@ namespace ErrorCentral.Application.Services
 {
     public class LogErrorService : ILogErrorService
     {
-        private ILogErrorRepository _logErrorRepository;
-        private IUserRepository _userRepository;
+        private readonly ILogErrorRepository _logErrorRepository;
+        private readonly IUserRepository _userRepository;
 
         public LogErrorService(ILogErrorRepository logErrorRepository, IUserRepository userRepository)
         {
