@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ErrorCentral.API\ErrorCentral.API.csproj" />
     <ProjectReference Include="..\..\ErrorCentral.Infrastructure\ErrorCentral.Infrastructure.csproj" />
+    <ProjectReference Include="..\ErrorCentral.UnitTests\ErrorCentral.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -23,6 +23,11 @@ namespace ErrorCentral.Infrastructure.Repositories
         {
             return await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync();
         }
+        
+        public async Task<IEnumerable<User>> GetAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
 
         public async Task<User> GetByEmailAsync(string email)
         {

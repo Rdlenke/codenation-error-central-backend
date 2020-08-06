@@ -6,7 +6,6 @@ using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Infrastructure;
 using ErrorCentral.Infrastructure.Repositories;
-using ErrorCentral.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -99,8 +98,11 @@ namespace ErrorCentral.API
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateIssuer = true,
+                    ValidIssuer = jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwt.Audience,
+                    ValidateLifetime = true
                 };
             });
             return services;
@@ -165,6 +167,7 @@ namespace ErrorCentral.API
             services.AddScoped<ILogErrorRepository, LogErrorRepository>();
             services.AddScoped<ILogErrorService, LogErrorService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
         }
     }
 }

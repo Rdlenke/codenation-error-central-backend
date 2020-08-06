@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using ErrorCentral.UnitTests.Builders.ViewModels;
 
 namespace ErrorCentral.UnitTests.Application
 {
@@ -33,7 +34,7 @@ namespace ErrorCentral.UnitTests.Application
         public void Create_handle_throw_exception_if_userId_not_found()
         {
             // Arrange
-            var logError = FakeLogErrorRequest();
+            var logError = new CreateLogErrorViewModelBuilder().Build();
 
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult<User>(It.IsAny<User>()));
@@ -53,7 +54,7 @@ namespace ErrorCentral.UnitTests.Application
         public async Task Create_handle_return_false_if_log_error_is_not_persisted()
         {
             // Arrange
-            var logError = FakeLogErrorRequest();
+            var logError = new CreateLogErrorViewModelBuilder().Build();
 
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveChangesAsync(default))
                 .Returns(Task.FromResult(1));
@@ -549,19 +550,6 @@ namespace ErrorCentral.UnitTests.Application
                 lastName: "Alves",
                 email: "joao@email.com"
             );
-        }
-
-        private CreateLogErrorViewModel FakeLogErrorRequest()
-        {
-            return new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
         }
     }
 }

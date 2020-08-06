@@ -1,6 +1,6 @@
 ﻿using ErrorCentral.API.v1.Controllers;
+using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.User;
-using ErrorCentral.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
