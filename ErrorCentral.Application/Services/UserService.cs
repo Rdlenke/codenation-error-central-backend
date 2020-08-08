@@ -1,7 +1,10 @@
-﻿using ErrorCentral.Application.ViewModels.User;
+using ErrorCentral.Application.ViewModels.User;
+using ErrorCentral.Application.ViewModels.Validators;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ErrorCentral.Application.Services
@@ -19,6 +22,17 @@ namespace ErrorCentral.Application.Services
 
         public async Task<GetUserViewModel> CreateAsync(CreateUserViewModel model)
         {
+            CreateUserViewModelValidation validator = new CreateUserViewModelValidation();
+            ValidationResult result = validator.Validate(model);
+
+            if (!result.IsValid)
+            {
+                return new GetUserViewModel
+                {
+                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
+                };
+            }
+
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user != null)
@@ -66,6 +80,19 @@ namespace ErrorCentral.Application.Services
 
         public async Task<GetUserViewModel> AuthenticateAsync(AuthenticateUserViewModel model)
         {
+            AuthenticateUserViewModelValidator validator = new AuthenticateUserViewModelValidator();
+
+            ValidationResult result = validator.Validate(model);
+
+            if (!result.IsValid)
+            {
+                return new GetUserViewModel
+                {
+                    Success = false,
+                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
+                };
+            }
+
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user == null)
