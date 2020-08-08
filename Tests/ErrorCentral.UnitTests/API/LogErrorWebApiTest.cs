@@ -85,7 +85,7 @@ namespace ErrorCentral.UnitTests.API
                 false,
                 errors: new[] { "UserId must be greater than 0" }
             );
-            _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
+            _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
                 .Returns(Task.FromResult(expected));
 
             //Act
@@ -93,8 +93,10 @@ namespace ErrorCentral.UnitTests.API
             var actionResult = await logErrorController.PostAsync(logError);
 
             ////Assert
-            var badRequestResult = Assert.IsType<BadRequestResult>(actionResult.Result);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
             badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(badRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
@@ -103,14 +105,32 @@ namespace ErrorCentral.UnitTests.API
         {
             //Arrange
             var logError = new CreateLogErrorViewModel();
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] {
+                    "UserId must be greater than 0",
+                    "Title cannot be null",
+                    "Title cannot be empty",
+                    "Source cannot be null",
+                    "Source cannot be empty",
+                    "Level cannot be empty",
+                    "'Level' possui um intervalo de valores que não inclui '0'.",
+                    "Environment cannot be empty",
+                    "'Environment' possui um intervalo de valores que não inclui '0'."
+                });
+            _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
             var actionResult = await logErrorController.PostAsync(logError);
 
             //Assert
-            var badRequestResult = Assert.IsType<BadRequestResult>(actionResult.Result);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
             badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(badRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Theory]
@@ -136,7 +156,7 @@ namespace ErrorCentral.UnitTests.API
             var result = actionResult.Result as NotFoundObjectResult;
 
             //Asserts
-            result.StatusCode.Should().Be((int)System.Net.HttpStatusCode.NotFound);
+            result.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
         }
 
         [Theory]

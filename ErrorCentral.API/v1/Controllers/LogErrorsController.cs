@@ -40,9 +40,9 @@ namespace ErrorCentral.API.v1.Controllers
                 "CreateAsync",
                 logError);
 
-            var idClaim = HttpContext.User.Claims.Where(c => c.Type == "id").FirstOrDefault();
-            int.TryParse(idClaim.Value, out int userId);
-            logError.UserId = userId;
+            //var idClaim = HttpContext.User.Claims.Where(c => c.Type == "id").FirstOrDefault();
+            //int.TryParse(idClaim.Value, out int userId);
+            //logError.UserId = userId;
             var result = await _logErrorService.CreateAsync(logError);
 
             if (!result.Success)
