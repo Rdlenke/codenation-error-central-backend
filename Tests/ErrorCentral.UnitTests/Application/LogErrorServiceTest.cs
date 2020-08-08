@@ -32,7 +32,7 @@ namespace ErrorCentral.UnitTests.Application
         {
             // Arrange
             var logError = new CreateLogErrorViewModelBuilder()
-                .WhitUserId(0)
+                .WithUserId(0)
                 .Build();
 
             var expected = new Response<CreateLogErrorViewModel>(
@@ -67,9 +67,9 @@ namespace ErrorCentral.UnitTests.Application
                     "Source cannot be null",
                     "Source cannot be empty",
                     "Level cannot be empty",
-                    "Informed value cannot be assigned",
+                    "Level Informed value cannot be assigned",
                     "Environment cannot be empty",
-                    "Informed value cannot be assigned"
+                    "Environment Informed value cannot be assigned"
                 });
 
             
