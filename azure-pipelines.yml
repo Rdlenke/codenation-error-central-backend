@@ -63,14 +63,6 @@ steps:
     command: 'build'
     arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
-
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
-    feedsToUse: config
-    nugetConfigPath: NuGet.config
     
 - task: DotNetCoreCLI@2
   inputs:
