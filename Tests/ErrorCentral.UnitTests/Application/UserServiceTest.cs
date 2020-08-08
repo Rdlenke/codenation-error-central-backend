@@ -1,13 +1,10 @@
-﻿using ErrorCentral.Application.Settings;
+﻿using ErrorCentral.Application.Services;
+using ErrorCentral.Application.Settings;
 using ErrorCentral.Application.ViewModels.User;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
-using ErrorCentral.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -23,10 +20,12 @@ namespace ErrorCentral.UnitTests.Application
 
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Jwt _jwt;
+        private readonly Mock<ITokenService> _tokenService;
 
         public UserServiceTest()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
+            _tokenService = new Mock<ITokenService>();
             _jwt = new Jwt { Secret = "483716eb8a552456316fca19d7ba0b85" };
         }
 
@@ -49,7 +48,7 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(Task.FromResult<User>(rawUser));
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             GetUserViewModel expected = new GetUserViewModel
@@ -79,11 +78,11 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            _userRepositoryMock.Setup(svc => svc.UnitOfWork.SaveChangesAsync(default(CancellationToken)))
+            _userRepositoryMock.Setup(svc => svc.UnitOfWork.SaveChangesAsync(default))
                 .Returns(Task.FromResult(0));
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             GetUserViewModel expected = new GetUserViewModel
@@ -118,7 +117,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -148,7 +147,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -178,7 +177,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -208,7 +207,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -249,9 +248,11 @@ namespace ErrorCentral.UnitTests.Application
 
             _userRepositoryMock.Setup(svc => svc.Create(It.IsAny<User>()))
                 .Returns(rawUser);
+            _tokenService.Setup(t => t.GenerateToken(rawUser))
+                .Returns("token client");
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -285,7 +286,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert
@@ -313,7 +314,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert
@@ -351,7 +352,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert
@@ -380,6 +381,8 @@ namespace ErrorCentral.UnitTests.Application
 
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(rawUser));
+            _tokenService.Setup(t => t.GenerateToken(rawUser))
+                .Returns("token client");
 
             GetUserViewModel expected = new GetUserViewModel
             {
@@ -392,7 +395,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert

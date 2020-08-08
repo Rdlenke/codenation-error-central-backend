@@ -14,6 +14,7 @@ namespace ErrorCentral.IntegrationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Development");
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(
