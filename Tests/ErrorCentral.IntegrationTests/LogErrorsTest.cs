@@ -26,7 +26,7 @@ namespace ErrorCentral.IntegrationTests
         }
 
         [Fact]
-        public async Task ReturnsSuccessGiverValidCreateLogError()
+        public async Task Returns_success_giver_valid_createLogError()
         {
             // Arrange
             var token = ApiTokenHelper.GetNormalUserToken();
@@ -38,6 +38,7 @@ namespace ErrorCentral.IntegrationTests
 
             // Assert
             response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 }
