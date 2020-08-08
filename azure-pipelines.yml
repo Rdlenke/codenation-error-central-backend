@@ -33,15 +33,10 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
+- task: AzureRmWebAppDeployment@4
   inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
-
-# this code takes all the files in $(Build.ArtifactStagingDirectory) and uploads them as an artifact of your build.
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'errorcentralapi'
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'Free Trial (78998849-35fc-442f-b867-58deb51a76d5)'
+    appType: 'webApp'
+    WebAppName: 'error-central-codenation-g2'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
