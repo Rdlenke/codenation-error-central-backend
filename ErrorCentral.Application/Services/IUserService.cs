@@ -9,6 +9,5 @@ namespace ErrorCentral.Application.Services
     {
         public Task<GetUserViewModel> CreateAsync(CreateUserViewModel model);
         public Task<GetUserViewModel> AuthenticateAsync(AuthenticateUserViewModel model);
-        public Task<IEnumerable<User>> GetAsync();
     }
 }
