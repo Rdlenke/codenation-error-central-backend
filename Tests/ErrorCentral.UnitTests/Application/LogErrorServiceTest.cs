@@ -67,9 +67,9 @@ namespace ErrorCentral.UnitTests.Application
                     "Source cannot be null",
                     "Source cannot be empty",
                     "Level cannot be empty",
-                    "'Level' possui um intervalo de valores que não inclui '0'.",
+                    "Informed value cannot be assigned",
                     "Environment cannot be empty",
-                    "'Environment' possui um intervalo de valores que não inclui '0'."
+                    "Informed value cannot be assigned"
                 });
 
             

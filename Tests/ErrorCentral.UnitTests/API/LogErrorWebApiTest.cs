@@ -115,9 +115,9 @@ namespace ErrorCentral.UnitTests.API
                     "Source cannot be null",
                     "Source cannot be empty",
                     "Level cannot be empty",
-                    "'Level' possui um intervalo de valores que não inclui '0'.",
+                    "Informed value cannot be assigned",
                     "Environment cannot be empty",
-                    "'Environment' possui um intervalo de valores que não inclui '0'."
+                    "Informed value cannot be assigned"
                 });
             _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
                 .Returns(Task.FromResult(expected));
