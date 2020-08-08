@@ -117,7 +117,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -147,7 +147,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -177,7 +177,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -207,7 +207,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -314,7 +314,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert

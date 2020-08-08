@@ -10,6 +10,7 @@ using Xunit;
 
 namespace ErrorCentral.IntegrationTests
 {
+    [Collection("User Tests")]
     public class UsersTest : IClassFixture<ApiTestFixture>
     {
         JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -51,12 +52,8 @@ namespace ErrorCentral.IntegrationTests
         [Fact]
         public async Task ReturnsSucessAuthenticating()
         {
-            // Arrange
-            var jsonContent = new StringContent(JsonSerializer.Serialize(new CreateUserViewModelBuilder().Build()), Encoding.UTF8, "application/json");
-            await Client.PostAsync($"{baseUrl}/CreateUser", jsonContent);
-
             // Act
-            jsonContent = new StringContent(JsonSerializer.Serialize(new AuthenticateUserViewModelBuilder().Build()), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonSerializer.Serialize(new AuthenticateUserViewModelBuilder().Build()), Encoding.UTF8, "application/json");
             var response = await Client.PostAsync($"{baseUrl}/AuthenticateUser", jsonContent);
 
             // Assert
@@ -66,16 +63,12 @@ namespace ErrorCentral.IntegrationTests
         [Fact]
         public async Task ReturnsFailureAuthenticating()
         {
-            // Arrange
-            var jsonContent = new StringContent(JsonSerializer.Serialize(new CreateUserViewModelBuilder().Build()), Encoding.UTF8, "application/json");
-            await Client.PostAsync($"{baseUrl}/CreateUser", jsonContent);
-
             // Act
             AuthenticateUserViewModel authenticateUserViewModel = new AuthenticateUserViewModelBuilder().Build();
             authenticateUserViewModel.Password = "1";
 
 
-            jsonContent = new StringContent(JsonSerializer.Serialize(authenticateUserViewModel), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonSerializer.Serialize(authenticateUserViewModel), Encoding.UTF8, "application/json");
             var response = await Client.PostAsync($"{baseUrl}/AuthenticateUser", jsonContent);
 
             // Assert
