@@ -82,6 +82,3 @@ steps:
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
     artifactName: 'errocentralapi'
-
-- task: PublishBuildArtifacts@1
-
