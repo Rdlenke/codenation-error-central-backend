@@ -9,7 +9,7 @@ namespace ErrorCentral.Application.Services
 {
     public interface ILogErrorService
     {
-        Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default);
+        Task<Response<CreateLogErrorViewModel>> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default);
         Task<Response<LogErrorDetailsViewModel>> GetLogError(int id);
         Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query);
         Task<Response<int>> RemoveAsync(int id);

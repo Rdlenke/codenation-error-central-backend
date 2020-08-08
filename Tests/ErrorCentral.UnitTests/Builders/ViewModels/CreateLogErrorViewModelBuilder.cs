@@ -32,6 +32,12 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
             return _createLogErrorViewModel;
         }
 
+        public CreateLogErrorViewModelBuilder WhitUserId(int userId)
+        {
+            _createLogErrorViewModel.UserId = userId;
+            return this;
+        }
+
         public CreateLogErrorViewModel Build()
         {
             return _createLogErrorViewModel;
