@@ -78,7 +78,7 @@ namespace ErrorCentral.UnitTests.API
         {
             //Arrange
             var logError = new CreateLogErrorViewModelBuilder()
-                .WhitUserId(0)
+                .WithUserId(0)
                 .Build();
             var expected = new Response<CreateLogErrorViewModel>(
                 data: logError,
@@ -115,9 +115,9 @@ namespace ErrorCentral.UnitTests.API
                     "Source cannot be null",
                     "Source cannot be empty",
                     "Level cannot be empty",
-                    "Informed value cannot be assigned",
+                    "Level Informed value cannot be assigned",
                     "Environment cannot be empty",
-                    "Informed value cannot be assigned"
+                    "Environment Informed value cannot be assigned"
                 });
             _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
                 .Returns(Task.FromResult(expected));
@@ -286,7 +286,7 @@ namespace ErrorCentral.UnitTests.API
         public async Task Delete_log_error_bad_request(int id)
         {
             //Arrange
-            var response = new Response<int>(false, new[] { $"object with id {id} not found" });
+            var response = new Response<int>(id, false, new[] { $"object with id {id} not found" });
             _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
                 .Returns(Task.FromResult(response));
 
@@ -299,9 +299,8 @@ namespace ErrorCentral.UnitTests.API
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
             badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var result = Assert.IsType<Response<int>>(badRequestResult.Value);
-            result.Success.Should().BeFalse();
-            result.Errors.Length.Should().Be(1);
-            result.Errors.Should().Equal(response.Errors);
+            result.Should()
+                .BeEquivalentTo(response);
         }
 
         [Theory]
@@ -326,8 +325,8 @@ namespace ErrorCentral.UnitTests.API
             var okRequestResult = Assert.IsType<OkObjectResult>(actionResult.Result);
             okRequestResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var result = Assert.IsType<Response<int>>(okRequestResult.Value);
-            result.Success.Should().BeTrue();
-            result.Errors.Should().BeNull();
+            result.Should()
+                .BeEquivalentTo(response);
         }
     }
 }

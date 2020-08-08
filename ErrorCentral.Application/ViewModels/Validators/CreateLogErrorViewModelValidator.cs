@@ -20,11 +20,11 @@ namespace ErrorCentral.Application.ViewModels.Validators
             RuleFor(x => x.Level)
                 .NotNull().WithMessage("Level cannot be null")
                 .NotEmpty().WithMessage("Level cannot be empty")
-                .IsInEnum().WithMessage("Informed value cannot be assigned");
+                .IsInEnum().WithMessage("Level Informed value cannot be assigned");
             RuleFor(x => x.Environment)
                 .NotNull().WithMessage("Environment cannot be null")
                 .NotEmpty().WithMessage("Environment cannot be empty")
-                .IsInEnum().WithMessage("Informed value cannot be assigned");
+                .IsInEnum().WithMessage("Environment Informed value cannot be assigned");
         }
     }
 }
