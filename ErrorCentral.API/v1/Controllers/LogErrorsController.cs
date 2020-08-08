@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using ErrorCentral.Application.ViewModels.Misc;
 using System.Runtime.InteropServices;
-
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ErrorCentral.API.v1.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class LogErrorsController : ControllerBase
