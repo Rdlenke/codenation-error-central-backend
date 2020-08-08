@@ -3,7 +3,6 @@ using ErrorCentral.Domain.SeedWork;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Application.ViewModels.Misc;
 
 namespace ErrorCentral.Application.Services
