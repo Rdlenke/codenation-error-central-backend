@@ -3,8 +3,8 @@ using ErrorCentral.Application.ViewModels.Validators;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ErrorCentral.Application.Services
