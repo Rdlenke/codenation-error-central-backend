@@ -16,7 +16,7 @@ namespace ErrorCentral.UnitTests.Application
         private const string Email = "user@user.com";
         private const string FirstName = "User";
         private const string LastName = "User";
-        private const string Password = "Password";
+        private const string Password = "sso2tLHp35Q!";
 
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Jwt _jwt;
@@ -94,6 +94,125 @@ namespace ErrorCentral.UnitTests.Application
             result.Should().BeEquivalentTo(expected);
         }
 
+        [Fact(DisplayName = "Create - Return Error if viewmodel password is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_password_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = UserServiceTest.FirstName,
+                LastName = UserServiceTest.LastName,
+                Password = "Password!"
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Password length must have more than 8 characters, with at least one digit, one uppercase character, one lowercase character and one special character" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel email is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_email_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = "email",
+                FirstName = UserServiceTest.FirstName,
+                LastName = UserServiceTest.LastName,
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Should be an email address!" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel firstname is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_firstname_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = "First Name",
+                LastName = UserServiceTest.LastName,
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "First Name shouldn't contain whitespaces" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel lastname is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_lastname_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = UserServiceTest.FirstName,
+                LastName = "Last Name",
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Last Name shouldn't contain whitespaces" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
 
 
         [Fact(DisplayName = "Create - Return User if User Was Registered")]
@@ -163,6 +282,34 @@ namespace ErrorCentral.UnitTests.Application
             GetUserViewModel expected = new GetUserViewModel
             {
                 Errors = new[] { "This user doesn't exist. " },
+                Success = false
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.AuthenticateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Authenticate - Can't authenticate if email is wrong format")]
+        [Trait("Operation", "Authenticate")]
+        public async Task Should_fail_if_email_is_in_wrong_format()
+        {
+
+            AuthenticateUserViewModel user = new AuthenticateUserViewModel
+            {
+                Email = "email",
+                Password = Password
+            };
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Should be an email address!" },
                 Success = false
             };
 
