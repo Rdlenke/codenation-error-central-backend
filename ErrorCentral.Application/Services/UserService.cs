@@ -129,10 +129,5 @@ namespace ErrorCentral.Application.Services
                 Email = user.Email
             };
         }
-
-        public async Task<IEnumerable<User>> GetAsync()
-        {
-            return await _userRepository.GetAsync();
-        }
     }
 }
