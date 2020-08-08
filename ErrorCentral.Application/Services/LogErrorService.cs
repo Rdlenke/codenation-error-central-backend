@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ErrorCentral.Application.ViewModels.Misc;
 using System.Text.RegularExpressions;
+using ErrorCentral.Application.ViewModels.Validators;
 
 namespace ErrorCentral.Application.Services
 {
@@ -19,15 +20,28 @@ namespace ErrorCentral.Application.Services
 
         public LogErrorService(ILogErrorRepository logErrorRepository, IUserRepository userRepository)
         {
-            this._logErrorRepository = logErrorRepository;
-            this._userRepository = userRepository;
+            _logErrorRepository = logErrorRepository;
+            _userRepository = userRepository;
         }
 
-        public async Task<bool> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default)
+        public async Task<Response<CreateLogErrorViewModel>> CreateAsync(CreateLogErrorViewModel model, CancellationToken cancellationToken = default)
         {
+            var validationResult = await new CreateLogErrorViewModelValidator().ValidateAsync(model);
+
+            if (!validationResult.IsValid)
+                return new Response<CreateLogErrorViewModel>(
+                    data: model,
+                    success: false,
+                    errors: validationResult.Errors.Select(x => x.ErrorMessage).ToArray()
+                );
+
             var user = await _userRepository.GetAsync(model.UserId);
             if (user == null)
-                throw new ArgumentException("Invalid number of userId");
+                return new Response<CreateLogErrorViewModel>(
+                    data: model,
+                    success: false,
+                    errors: new [] { $"User with id {model.UserId} not found" }
+                );
 
             var logError = new LogError(
                 userId: model.UserId,
@@ -39,8 +53,10 @@ namespace ErrorCentral.Application.Services
 
             _logErrorRepository.Add(logError);
 
-            return await _logErrorRepository.UnitOfWork
+            var result = await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync(cancellationToken);
+
+            return result ? new Response<CreateLogErrorViewModel>(model, result) : new Response<CreateLogErrorViewModel>(model, false, new[] { $"Error persisting database changes" });
         }
 
         public async Task<Response<LogErrorDetailsViewModel>> GetLogError(int id)
@@ -140,14 +156,14 @@ namespace ErrorCentral.Application.Services
         {
             var logError = await _logErrorRepository.GetByIdAsync(id);
             if (logError == null)
-                return new Response<int>(false, new[] { $"object with id {id} not found" });
+                return new Response<int>(id, false, new[] { $"object with id {id} not found" });
 
             logError.Remove();
             _logErrorRepository.Update(logError);
 
             var result = await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync();
-            return result ? new Response<int>(id, result) : new Response<int>(false, new[] { $"Error persisting database changes" });
+            return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
         }
     }
 }

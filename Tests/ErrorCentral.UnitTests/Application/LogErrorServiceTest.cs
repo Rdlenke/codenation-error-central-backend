@@ -5,16 +5,13 @@ using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Domain.SeedWork;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Moq;
-using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using ErrorCentral.UnitTests.Builders.ViewModels;
+using ErrorCentral.UnitTests.Builders.AggregatesModel;
 
 namespace ErrorCentral.UnitTests.Application
 {
@@ -29,60 +26,160 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock = new Mock<IUserRepository>();
         }
 
-        [Fact(DisplayName = "Create - Throw Exception If UserId Not Found")]
+        [Fact(DisplayName = "Create - Response errors if UserId not be greater zero")]
         [Trait("Operation", "Create")]
-        public void Create_handle_throw_exception_if_userId_not_found()
+        public async Task Create_handle_response_success_false_if_userId_is_not_be_greater_zero()
+        {
+            // Arrange
+            var logError = new CreateLogErrorViewModelBuilder()
+                .WhitUserId(0)
+                .Build();
+
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] { "UserId must be greater than 0" });
+
+            
+            //Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.CreateAsync(logError);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+        
+        [Fact(DisplayName = "Create - Response errors if model is not valid")]
+        [Trait("Operation", "Create")]
+        public async Task Create_handle_response_success_false_if_model_is_not_valid()
+        {
+            // Arrange
+            var logError = new CreateLogErrorViewModel();
+
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] {
+                    "UserId must be greater than 0",
+                    "Title cannot be null",
+                    "Title cannot be empty",
+                    "Source cannot be null",
+                    "Source cannot be empty",
+                    "Level cannot be empty",
+                    "'Level' possui um intervalo de valores que não inclui '0'.",
+                    "Environment cannot be empty",
+                    "'Environment' possui um intervalo de valores que não inclui '0'."
+                });
+
+            
+            //Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.CreateAsync(logError);
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return False If User Is Not Found")]
+        [Trait("Operation", "Create")]
+        public async Task Create_handle_response_success_false_if_user_not_found()
         {
             // Arrange
             var logError = new CreateLogErrorViewModelBuilder().Build();
 
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult<User>(It.IsAny<User>()));
+                .Returns(Task.FromResult<User>(null));
 
-            //Act
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] {
+                    $"User with id {logError.UserId} not found"
+                });
+
+            // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var cltToken = new CancellationToken();
-            Func<Task> act = async () => { await service.CreateAsync(logError, cltToken); };
+            var result = await service.CreateAsync(logError);
 
-            //Assert
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("Invalid number of userId");
+            // Assert
+            _userRepositoryMock.Verify(u => u.GetAsync(It.IsAny<int>()));
+            result
+                .Should().BeEquivalentTo(expected);
         }
 
         [Fact(DisplayName = "Create - Return False If LogError Is Not Persisted")]
         [Trait("Operation", "Create")]
-        public async Task Create_handle_return_false_if_log_error_is_not_persisted()
+        public async Task Create_handle_response_success_false_if_log_error_is_not_persisted()
         {
             // Arrange
             var logError = new CreateLogErrorViewModelBuilder().Build();
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveChangesAsync(default))
-                .Returns(Task.FromResult(1));
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(false));
 
             _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult<User>(FakeUser()));
+                .Returns(Task.FromResult<User>(new UserBuilder().Build()));
+
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] { $"Error persisting database changes" });
 
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var cltToken = new CancellationToken();
-            var result = await service.CreateAsync(logError, cltToken);
+            var result = await service.CreateAsync(logError);
 
             // Assert
+            _userRepositoryMock.Verify(u => u.GetAsync(It.IsAny<int>()));
             result
-                .Should()
-                .BeFalse();
+                .Should().BeEquivalentTo(expected);
         }
 
-        [Theory]
+        [Fact(DisplayName = "Create - Return Success true")]
+        [Trait("Operation", "Create")]
+        public async Task Create_handle_response_success_true()
+        {
+            // Arrange
+            var logError = new CreateLogErrorViewModelBuilder().Build();
+
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(true));
+
+            _userRepositoryMock.Setup(svc => svc.GetAsync(It.IsAny<int>()))
+                .Returns(Task.FromResult<User>(new UserBuilder().Build()));
+
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: true);
+
+            // Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.CreateAsync(logError);
+
+            // Assert
+            _userRepositoryMock.Verify(u => u.GetAsync(It.IsAny<int>()));
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Theory(DisplayName = "Delete - Return Success false if log error not find")]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
+        [Trait("Operation", "Delete")]
         public async Task Remove_handle_return_fail_if_log_error_not_find(int id)
         {
             // Arrange
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetByIdAsync(id))
                 .Returns(Task.FromResult<LogError>(null));
+
+            var expected = new Response<int>(
+                data: id,
+                success: false,
+                errors: new[] { $"object with id {id} not found" });
 
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
@@ -90,15 +187,16 @@ namespace ErrorCentral.UnitTests.Application
 
             // Assert
             _logErrorRepositoryMock.Verify(l => l.GetByIdAsync(id));
-            result.Success.Should().BeFalse();
-            result.Errors.Should().Equal(new[] { $"object with id {id} not found" });
+            result
+                .Should().BeEquivalentTo(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Delete - Return Success true if log error removed")]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
+        [Trait("Operation", "Delete")]
         public async Task Remove_handle_return_success_if_log_error_removed(int id)
         {
             // Arrange
@@ -107,6 +205,10 @@ namespace ErrorCentral.UnitTests.Application
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
                 .Returns(Task.FromResult(true));
 
+            var expected = new Response<int>(
+                data: id,
+                success: true);
+
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.RemoveAsync(id);
@@ -114,15 +216,16 @@ namespace ErrorCentral.UnitTests.Application
             // Assert
             _logErrorRepositoryMock.Verify(l => l.GetByIdAsync(id));
             _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
-            result.Success.Should().BeTrue();
-            result.Errors.Should().BeNull();
+            result
+                .Should().BeEquivalentTo(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Delete - Return Success true if log error not persisted")]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
+        [Trait("Operation", "Delete")]
         public async Task Remove_handle_return_success_if_log_error_not_persisted(int id)
         {
             // Arrange
@@ -131,6 +234,11 @@ namespace ErrorCentral.UnitTests.Application
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
                 .Returns(Task.FromResult(false));
 
+            var expected = new Response<int>(
+                data: id,
+                success: false,
+                errors: new[] { $"Error persisting database changes" });
+
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.RemoveAsync(id);
@@ -138,8 +246,8 @@ namespace ErrorCentral.UnitTests.Application
             // Assert
             _logErrorRepositoryMock.Verify(l => l.GetByIdAsync(id));
             _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
-            result.Success.Should().BeFalse();
-            result.Errors.Should().Equal(new[] { $"Error persisting database changes" });
+            result
+                .Should().BeEquivalentTo(expected);
         }
 
         [Fact(DisplayName = "Get - Get LogError By ID")]

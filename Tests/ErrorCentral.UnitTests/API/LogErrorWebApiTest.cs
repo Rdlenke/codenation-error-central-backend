@@ -12,8 +12,8 @@ using ErrorCentral.Domain.SeedWork;
 using System.Collections.Generic;
 using System.Net;
 using ErrorCentral.Application.ViewModels.Misc;
-
 using System;
+using ErrorCentral.UnitTests.Builders.ViewModels;
 
 namespace ErrorCentral.UnitTests.API
 {
@@ -55,52 +55,46 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_success()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
+            var logError = new CreateLogErrorViewModelBuilder().Build();
+            var expected = new Response<CreateLogErrorViewModel>(logError, true);
 
             _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
-                .Returns(Task.FromResult(true));
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as OkResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
             //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.OK);
+            var createdRequestResult = Assert.IsType<CreatedResult>(actionResult.Result);
+            createdRequestResult.StatusCode.Should().Be((int)HttpStatusCode.Created);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(createdRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
         [Trait("POST - Operation", "Create")]
-        public async Task Create_log_error_bad_request()
+        public async Task Create_log_error_bad_request_with_userId()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
+            var logError = new CreateLogErrorViewModelBuilder()
+                .WhitUserId(0)
+                .Build();
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                false,
+                errors: new[] { "UserId must be greater than 0" }
+            );
             _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
-                .Returns(Task.FromResult(false));
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
-            //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.BadRequest);
+            ////Assert
+            var badRequestResult = Assert.IsType<BadRequestResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -108,23 +102,15 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_with_invalid_view_model_bad_request()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
+            var logError = new CreateLogErrorViewModel();
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
             //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.BadRequest);
+            var badRequestResult = Assert.IsType<BadRequestResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Theory]
