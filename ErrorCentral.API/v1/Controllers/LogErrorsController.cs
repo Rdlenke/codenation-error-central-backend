@@ -30,7 +30,7 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<Response<CreateLogErrorViewModel>>> PostAsync([FromBody] CreateLogErrorViewModel logError)
         {
@@ -54,12 +54,10 @@ namespace ErrorCentral.API.v1.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetAsync(int id)
         {
-            Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
+            var model = await _logErrorService.GetLogError(id);
 
-            if (model.Success == false)
-            {
+            if (!model.Success)
                 return NotFound(model);
-            }
 
             return Ok(model);
         }

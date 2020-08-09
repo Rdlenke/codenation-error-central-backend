@@ -1,8 +1,6 @@
 ﻿using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.SeedWork;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ErrorCentral.Application.ViewModels.LogError
 {
@@ -21,16 +19,5 @@ namespace ErrorCentral.Application.ViewModels.LogError
         public DateTimeOffset CreatedAt { get; set; }
 
         public string Source { get; set; }
-
-        public LogErrorDetailsViewModel(int userId, string title, string details, ELevel level, EEnvironment environment, DateTimeOffset createdAt, string source)
-        {
-            UserId = userId;
-            Title = title;
-            Details = details;
-            Level = level;
-            Environment = environment;
-            CreatedAt = createdAt;
-            Source = source;
-        }
     }
 }

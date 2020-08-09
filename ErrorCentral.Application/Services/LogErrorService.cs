@@ -64,24 +64,22 @@ namespace ErrorCentral.Application.Services
             var logError = await _logErrorRepository.GetById(id);
 
             if (logError == null)
-            {
                 return new Response<LogErrorDetailsViewModel>(
                     success: false,
                     errors: new[] { $"There isn't a log error with {id}" });
-            }
 
-            LogErrorDetailsViewModel model = new LogErrorDetailsViewModel(
-                createdAt: logError.CreatedAt,
-                environment: logError.Environment,
-                level: logError.Level,
-                source: logError.Source,
-                details: logError.Details,
-                title: logError.Title,
-                userId: logError.UserId
-            );
+            var model = new LogErrorDetailsViewModel()
+            {
+                UserId = logError.UserId,
+                Title = logError.Title,
+                Details = logError.Details,
+                Level = logError.Level,
+                Environment = logError.Environment,
+                CreatedAt = logError.CreatedAt,
+                Source = logError.Source,
+            };
 
-            return new Response<LogErrorDetailsViewModel>(
-                data: model, success: true, errors: null);
+            return new Response<LogErrorDetailsViewModel>(data: model, success: true);
         }
 
         public Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query)
