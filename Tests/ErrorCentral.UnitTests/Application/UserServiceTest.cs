@@ -1,13 +1,10 @@
-﻿using ErrorCentral.Application.Settings;
+﻿using ErrorCentral.Application.Services;
+using ErrorCentral.Application.Settings;
 using ErrorCentral.Application.ViewModels.User;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
-using ErrorCentral.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -19,15 +16,15 @@ namespace ErrorCentral.UnitTests.Application
         private const string Email = "user@user.com";
         private const string FirstName = "User";
         private const string LastName = "User";
-        private const string Password = "Password";
+        private const string Password = "sso2tLHp35Q!";
 
         private readonly Mock<IUserRepository> _userRepositoryMock;
-        private readonly Jwt _jwt;
+        private readonly Mock<ITokenService> _tokenService;
 
         public UserServiceTest()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
-            _jwt = new Jwt { Secret = "483716eb8a552456316fca19d7ba0b85" };
+            _tokenService = new Mock<ITokenService>();
         }
 
         [Fact(DisplayName = "Create - Return Error If User Already Exists")]
@@ -49,7 +46,7 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(Task.FromResult<User>(rawUser));
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             GetUserViewModel expected = new GetUserViewModel
@@ -79,11 +76,11 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            _userRepositoryMock.Setup(svc => svc.UnitOfWork.SaveChangesAsync(default(CancellationToken)))
+            _userRepositoryMock.Setup(svc => svc.UnitOfWork.SaveChangesAsync(default))
                 .Returns(Task.FromResult(0));
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             GetUserViewModel expected = new GetUserViewModel
@@ -95,6 +92,125 @@ namespace ErrorCentral.UnitTests.Application
             result.Should().BeEquivalentTo(expected);
         }
 
+        [Fact(DisplayName = "Create - Return Error if viewmodel password is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_password_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = UserServiceTest.FirstName,
+                LastName = UserServiceTest.LastName,
+                Password = "Password!"
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Password length must have more than 8 characters, with at least one digit, one uppercase character, one lowercase character and one special character" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel email is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_email_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = "email",
+                FirstName = UserServiceTest.FirstName,
+                LastName = UserServiceTest.LastName,
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Should be an email address!" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel firstname is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_firstname_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = "First Name",
+                LastName = UserServiceTest.LastName,
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "First Name shouldn't contain whitespaces" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Create - Return Error if viewmodel lastname is Invalid")]
+        [Trait("Operation", "Create")]
+        public async Task Should_fail_if_viewmodel_lastname_is_invalid()
+        {
+            CreateUserViewModel user = new CreateUserViewModel
+            {
+                Email = UserServiceTest.Email,
+                FirstName = UserServiceTest.FirstName,
+                LastName = "Last Name",
+                Password = UserServiceTest.Password
+            };
+
+            User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Last Name shouldn't contain whitespaces" }
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.CreateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
 
 
         [Fact(DisplayName = "Create - Return User if User Was Registered")]
@@ -130,9 +246,11 @@ namespace ErrorCentral.UnitTests.Application
 
             _userRepositoryMock.Setup(svc => svc.Create(It.IsAny<User>()))
                 .Returns(rawUser);
+            _tokenService.Setup(t => t.GenerateToken(rawUser))
+                .Returns("token client");
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.CreateAsync(user);
 
             //Assert
@@ -166,7 +284,35 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
+            GetUserViewModel result = await service.AuthenticateAsync(user);
+
+            //Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Authenticate - Can't authenticate if email is wrong format")]
+        [Trait("Operation", "Authenticate")]
+        public async Task Should_fail_if_email_is_in_wrong_format()
+        {
+
+            AuthenticateUserViewModel user = new AuthenticateUserViewModel
+            {
+                Email = "email",
+                Password = Password
+            };
+
+            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null));
+
+            GetUserViewModel expected = new GetUserViewModel
+            {
+                Errors = new[] { "Should be an email address!" },
+                Success = false
+            };
+
+            //Act
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert
@@ -204,7 +350,7 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
             //Assert
@@ -233,6 +379,8 @@ namespace ErrorCentral.UnitTests.Application
 
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(rawUser));
+            _tokenService.Setup(t => t.GenerateToken(rawUser))
+                .Returns("token client");
 
             GetUserViewModel expected = new GetUserViewModel
             {
@@ -245,10 +393,9 @@ namespace ErrorCentral.UnitTests.Application
             };
 
             //Act
-            UserService service = new UserService(_userRepositoryMock.Object, _jwt);
+            UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
-            //Assert
             //Assert
             result.Email.Should().BeEquivalentTo(expected.Email);
             result.FirstName.Should().BeEquivalentTo(expected.FirstName);

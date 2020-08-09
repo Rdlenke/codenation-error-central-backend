@@ -1,0 +1,5 @@
+ignore:
+- ErrorCentral.Infrastructure/Config
+- ErrorCentral.Infrastructure/Migrations
+- ErrorCentral.Infrastructure/ErrorCentralContextSeed.cs
+- ErrorCentral.Infrastructure/ErrorCentralContext.cs

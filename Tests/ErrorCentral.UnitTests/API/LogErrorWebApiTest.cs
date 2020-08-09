@@ -12,8 +12,8 @@ using ErrorCentral.Domain.SeedWork;
 using System.Collections.Generic;
 using System.Net;
 using ErrorCentral.Application.ViewModels.Misc;
-
 using System;
+using ErrorCentral.UnitTests.Builders.ViewModels;
 
 namespace ErrorCentral.UnitTests.API
 {
@@ -55,52 +55,48 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_success()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
+            var logError = new CreateLogErrorViewModelBuilder().Build();
+            var expected = new Response<CreateLogErrorViewModel>(logError, true);
 
             _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
-                .Returns(Task.FromResult(true));
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as OkResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
             //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.OK);
+            var createdRequestResult = Assert.IsType<CreatedResult>(actionResult.Result);
+            createdRequestResult.StatusCode.Should().Be((int)HttpStatusCode.Created);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(createdRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
         [Trait("POST - Operation", "Create")]
-        public async Task Create_log_error_bad_request()
+        public async Task Create_log_error_bad_request_with_userId()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
-            _logErrorServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateLogErrorViewModel>(), default))
-                .Returns(Task.FromResult(false));
+            var logError = new CreateLogErrorViewModelBuilder()
+                .WithUserId(0)
+                .Build();
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                false,
+                errors: new[] { "UserId must be greater than 0" }
+            );
+            _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
-            //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.BadRequest);
+            ////Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(badRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
@@ -108,23 +104,33 @@ namespace ErrorCentral.UnitTests.API
         public async Task Create_log_error_with_invalid_view_model_bad_request()
         {
             //Arrange
-            var logError = new CreateLogErrorViewModel()
-            {
-                Title = "Run-time exception (line 8): Attempted to divide by zero.",
-                Details = "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8",
-                Source = "http://production.com/",
-                Level = ELevel.Error,
-                Environment = EEnvironment.Production,
-                UserId = 1
-            };
+            var logError = new CreateLogErrorViewModel();
+            var expected = new Response<CreateLogErrorViewModel>(
+                data: logError,
+                success: false,
+                errors: new[] {
+                    "UserId must be greater than 0",
+                    "Title cannot be null",
+                    "Title cannot be empty",
+                    "Source cannot be null",
+                    "Source cannot be empty",
+                    "Level cannot be empty",
+                    "Level Informed value cannot be assigned",
+                    "Environment cannot be empty",
+                    "Environment Informed value cannot be assigned"
+                });
+            _logErrorServiceMock.Setup(x => x.CreateAsync(logError, default))
+                .Returns(Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = await logErrorController.PostAsync(logError) as BadRequestResult;
+            var actionResult = await logErrorController.PostAsync(logError);
 
             //Assert
-            actionResult.StatusCode.Should()
-                .Be((int)System.Net.HttpStatusCode.BadRequest);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<CreateLogErrorViewModel>>(badRequestResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Theory]
@@ -133,24 +139,54 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
-        public async Task Get_log_error_unsuccessfully(int id)
+        public async Task Get_log_error_with_id_invald_and_returns_not_found(int id)
         {
             //Arrange 
-            var response = new Response<LogErrorDetailsViewModel>(
+            var expected = new Response<LogErrorDetailsViewModel>(
                 success: false,
                 errors: new [] { $"There isn't an log with id {id}" }
             );
 
             _logErrorServiceMock.Setup(x => x.GetLogError(id)).Returns(
-                Task.FromResult(response));
+                Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
             var actionResult = await logErrorController.GetAsync(id);
-            var result = actionResult.Result as NotFoundObjectResult;
 
             //Asserts
-            result.StatusCode.Should().Be((int)System.Net.HttpStatusCode.NotFound);
+            var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(actionResult.Result);
+            notFoundObjectResult.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+            var result = Assert.IsType<Response<LogErrorDetailsViewModel>>(notFoundObjectResult.Value);
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Theory]
+        [Trait("GET - Operation", "Detail")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Get_log_error_with_id_valid(int id)
+        {
+            //Arrange 
+            var expected = new Response<LogErrorDetailsViewModel>(
+                data: new LogErrorDetailsViewModelBuilder().Build(),
+                success: true
+            );
+
+            _logErrorServiceMock.Setup(x => x.GetLogError(id)).Returns(
+                Task.FromResult(expected));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetAsync(id);
+
+            //Asserts
+            var okObjectResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            okObjectResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var result = Assert.IsType<Response<LogErrorDetailsViewModel>>(okObjectResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Theory]
@@ -280,7 +316,7 @@ namespace ErrorCentral.UnitTests.API
         public async Task Delete_log_error_bad_request(int id)
         {
             //Arrange
-            var response = new Response<int>(false, new[] { $"object with id {id} not found" });
+            var response = new Response<int>(id, false, new[] { $"object with id {id} not found" });
             _logErrorServiceMock.Setup(x => x.RemoveAsync(id))
                 .Returns(Task.FromResult(response));
 
@@ -293,9 +329,8 @@ namespace ErrorCentral.UnitTests.API
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
             badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var result = Assert.IsType<Response<int>>(badRequestResult.Value);
-            result.Success.Should().BeFalse();
-            result.Errors.Length.Should().Be(1);
-            result.Errors.Should().Equal(response.Errors);
+            result.Should()
+                .BeEquivalentTo(response);
         }
 
         [Theory]
@@ -320,8 +355,8 @@ namespace ErrorCentral.UnitTests.API
             var okRequestResult = Assert.IsType<OkObjectResult>(actionResult.Result);
             okRequestResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var result = Assert.IsType<Response<int>>(okRequestResult.Value);
-            result.Success.Should().BeTrue();
-            result.Errors.Should().BeNull();
+            result.Should()
+                .BeEquivalentTo(response);
         }
     }
 }

@@ -1,29 +1,38 @@
-﻿using ErrorCentral.Application.Settings;
 using ErrorCentral.Application.ViewModels.User;
+using ErrorCentral.Application.ViewModels.Validators;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace ErrorCentral.Services
+namespace ErrorCentral.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly Jwt _jwt;
+        private readonly ITokenService _tokenService;
 
-        public UserService(IUserRepository userRepository, Jwt jwt)
+        public UserService(IUserRepository userRepository, ITokenService tokenService)
         {
             _userRepository = userRepository;
-            _jwt = jwt;
+            _tokenService = tokenService;
         }
 
         public async Task<GetUserViewModel> CreateAsync(CreateUserViewModel model)
         {
+            CreateUserViewModelValidation validator = new CreateUserViewModelValidation();
+            ValidationResult result = validator.Validate(model);
+
+            if (!result.IsValid)
+            {
+                return new GetUserViewModel
+                {
+                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
+                };
+            }
+
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user != null)
@@ -56,7 +65,7 @@ namespace ErrorCentral.Services
                 };
             }
 
-            string token = GenerateToken(newUser);
+            string token = _tokenService.GenerateToken(newUser);
 
             return new GetUserViewModel
             {
@@ -71,6 +80,19 @@ namespace ErrorCentral.Services
 
         public async Task<GetUserViewModel> AuthenticateAsync(AuthenticateUserViewModel model)
         {
+            AuthenticateUserViewModelValidator validator = new AuthenticateUserViewModelValidator();
+
+            ValidationResult result = validator.Validate(model);
+
+            if (!result.IsValid)
+            {
+                return new GetUserViewModel
+                {
+                    Success = false,
+                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
+                };
+            }
+
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user == null)
@@ -95,7 +117,7 @@ namespace ErrorCentral.Services
                 };
             }
 
-            string token = GenerateToken(user);
+            string token = _tokenService.GenerateToken(user);
 
             return new GetUserViewModel
             {
@@ -106,29 +128,6 @@ namespace ErrorCentral.Services
                 Success = true,
                 Email = user.Email
             };
-        }
-
-        private string GenerateToken(User user)
-        {
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            byte[] key = Encoding.ASCII.GetBytes(_jwt.Secret);
-
-            SecurityTokenDescriptor descriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("id", user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            SecurityToken token = handler.CreateToken(descriptor);
-
-            return handler.WriteToken(token);
         }
     }
 }
