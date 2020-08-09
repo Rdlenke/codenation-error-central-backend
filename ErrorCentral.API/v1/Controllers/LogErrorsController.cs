@@ -56,10 +56,8 @@ namespace ErrorCentral.API.v1.Controllers
         {
             var model = await _logErrorService.GetLogError(id);
 
-            if (model.Success == false)
-            {
+            if (!model.Success)
                 return NotFound(model);
-            }
 
             return Ok(model);
         }

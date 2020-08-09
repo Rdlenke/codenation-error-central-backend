@@ -139,24 +139,54 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
-        public async Task Get_log_error_unsuccessfully(int id)
+        public async Task Get_log_error_with_id_invald_and_returns_not_found(int id)
         {
             //Arrange 
-            var response = new Response<LogErrorDetailsViewModel>(
+            var expected = new Response<LogErrorDetailsViewModel>(
                 success: false,
                 errors: new [] { $"There isn't an log with id {id}" }
             );
 
             _logErrorServiceMock.Setup(x => x.GetLogError(id)).Returns(
-                Task.FromResult(response));
+                Task.FromResult(expected));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
             var actionResult = await logErrorController.GetAsync(id);
-            var result = actionResult.Result as NotFoundObjectResult;
 
             //Asserts
-            result.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+            var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(actionResult.Result);
+            notFoundObjectResult.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+            var result = Assert.IsType<Response<LogErrorDetailsViewModel>>(notFoundObjectResult.Value);
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Theory]
+        [Trait("GET - Operation", "Detail")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Get_log_error_with_id_valid(int id)
+        {
+            //Arrange 
+            var expected = new Response<LogErrorDetailsViewModel>(
+                data: new LogErrorDetailsViewModelBuilder().Build(),
+                success: true
+            );
+
+            _logErrorServiceMock.Setup(x => x.GetLogError(id)).Returns(
+                Task.FromResult(expected));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetAsync(id);
+
+            //Asserts
+            var okObjectResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            okObjectResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var result = Assert.IsType<Response<LogErrorDetailsViewModel>>(okObjectResult.Value);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Theory]
