@@ -251,11 +251,12 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Get LogError By ID")]
+        [Trait("Operation", "Get")]
         public async Task Get_log_error_by_id()
         {
             // Arrange
-            LogError logError = new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development);
-            _logErrorRepositoryMock.Setup(x => x.GetById(1))
+            LogError logError = new LogErrorBuilder().Build();
+            _logErrorRepositoryMock.Setup(x => x.GetById(It.IsAny<int>()))
                 .Returns(Task.FromResult(logError));
 
             LogErrorDetailsViewModel viewModel = new LogErrorDetailsViewModel(
@@ -268,17 +269,16 @@ namespace ErrorCentral.UnitTests.Application
                 source: logError.Source
             );
 
-            Response<LogErrorDetailsViewModel> expected = new Response<LogErrorDetailsViewModel>(data: viewModel, success: true, errors: null);
+            var expected = new Response<LogErrorDetailsViewModel>(data: viewModel, success: true, errors: null);
 
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = await service.GetLogError(1);
+            var result = await service.GetLogError(It.IsAny<int>());
 
             // Assert
             result
                 .Should()
                 .BeEquivalentTo(expected);
-
         }
 
 
