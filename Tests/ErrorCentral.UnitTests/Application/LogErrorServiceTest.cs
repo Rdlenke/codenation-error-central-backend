@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Xunit;
 using ErrorCentral.UnitTests.Builders.ViewModels;
 using ErrorCentral.UnitTests.Builders.AggregatesModel;
+using System;
+using FluentAssertions.Extensions;
 
 namespace ErrorCentral.UnitTests.Application
 {
@@ -268,6 +270,13 @@ namespace ErrorCentral.UnitTests.Application
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             result.Data.Title.Should().BeEquivalentTo(builderViewModel.Title);
+            result.Data.UserId.Should().Be(builderViewModel.UserId);
+            result.Data.Details.Should().Be(builderViewModel.Details);
+            result.Data.Level.Should().Be(builderViewModel.Level);
+            result.Data.Environment.Should().Be(builderViewModel.Environment);
+            result.Data.Source.Should().Be(builderViewModel.Source);
+            result.Data.CreatedAt.Should()
+                .BeAfter(1.Hours().Before(DateTime.UtcNow));
         }
 
 
