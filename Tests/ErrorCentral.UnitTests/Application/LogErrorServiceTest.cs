@@ -288,7 +288,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = await service.GetLogError(It.IsAny<int>());
+            var result = await service.GetLogError(id);
 
             // Assert
             result
