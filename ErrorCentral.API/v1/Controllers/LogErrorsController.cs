@@ -9,12 +9,13 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using ErrorCentral.Application.ViewModels.Misc;
 using System.Runtime.InteropServices;
-
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Linq;
 
 namespace ErrorCentral.API.v1.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class LogErrorsController : ControllerBase
@@ -29,38 +30,34 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PostAsync([FromBody] CreateLogErrorViewModel logError)
+        public async Task<ActionResult<Response<CreateLogErrorViewModel>>> PostAsync([FromBody] CreateLogErrorViewModel logError)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             _logger.LogInformation(
                 "----- Sending request: {ServiceName} - {ServiceMethod}: ({@ViewModel})",
                 nameof(ILogErrorService),
                 "CreateAsync",
                 logError);
 
+            //var idClaim = HttpContext.User.Claims.Where(c => c.Type == "id").FirstOrDefault();
+            //int.TryParse(idClaim.Value, out int userId);
+            //logError.UserId = userId;
             var result = await _logErrorService.CreateAsync(logError);
 
-            if (!result)
-            {
-                return BadRequest();
-            }
+            if (!result.Success)
+                return BadRequest(result);
 
-            return Ok();
+            return Created(nameof(PostAsync), result);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Response<LogErrorDetailsViewModel>>> GetAsync(int id)
         {
-            Response<LogErrorDetailsViewModel> model = await _logErrorService.GetLogError(id);
+            var model = await _logErrorService.GetLogError(id);
 
-            if (model.Success == false)
-            {
+            if (!model.Success)
                 return NotFound(model);
-            }
 
             return Ok(model);
         }

@@ -1,10 +1,9 @@
 ﻿using ErrorCentral.Application.ViewModels.User;
-using System;
+using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace ErrorCentral.Services
+namespace ErrorCentral.Application.Services
 {
     public interface IUserService
     {
