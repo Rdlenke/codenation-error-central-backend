@@ -14,5 +14,6 @@ namespace ErrorCentral.Application.Services
         Task<Response<LogErrorDetailsViewModel>> GetLogError(int id);
         Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query);
         Task<Response<int>> RemoveAsync(int id);
+        Task<Response<int>> ArchiveAsync(int id);
     }
 }

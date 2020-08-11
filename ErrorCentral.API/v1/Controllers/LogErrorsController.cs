@@ -95,5 +95,23 @@ namespace ErrorCentral.API.v1.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Response<int>>> ArchiveAsync([FromRoute] int id)
+        {
+            _logger.LogInformation(
+                "----- Sending request: {ServiceName} - {ServiceMethod}: ({@Id})",
+                nameof(ILogErrorService),
+                "ArchiveAsync",
+                id);
+
+            var result = await _logErrorService.ArchiveAsync(id);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

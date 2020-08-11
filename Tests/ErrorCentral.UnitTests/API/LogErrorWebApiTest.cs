@@ -323,5 +323,58 @@ namespace ErrorCentral.UnitTests.API
             result.Success.Should().BeTrue();
             result.Errors.Should().BeNull();
         }
+
+        [Theory]
+        [Trait("Patch - Operation", "Archive")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Archive_log_error_bad_request(int id)
+        {
+            //Arrange
+            var response = new Response<int>(false, new[] { $"object with id {id} not found" });
+            _logErrorServiceMock.Setup(x => x.ArchiveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.ArchiveAsync(id);
+
+
+            //Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<int>>(badRequestResult.Value);
+            result.Success.Should().BeFalse();
+            result.Errors.Length.Should().Be(1);
+            result.Errors.Should().Equal(response.Errors);
+        }
+
+        [Theory]
+        [Trait("Patch - Operation", "Archive")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task Archive_log_error_sucess(int id)
+        {
+            //Arrange
+            var response = new Response<int>(id, true);
+            _logErrorServiceMock.Setup(x => x.ArchiveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.ArchiveAsync(id);
+
+
+            //Assert
+            var okRequestResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            okRequestResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var result = Assert.IsType<Response<int>>(okRequestResult.Value);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeNull();
+        }
     }
 }
