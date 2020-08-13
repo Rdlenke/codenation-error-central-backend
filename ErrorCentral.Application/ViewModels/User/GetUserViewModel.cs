@@ -13,5 +13,7 @@ namespace ErrorCentral.Application.ViewModels.User
         public string Token { get; set; }
         public string[] Errors { get; set; }
         public bool Success { get; set; }
+
+        public Guid Guid { get; set; }
     }
 }
