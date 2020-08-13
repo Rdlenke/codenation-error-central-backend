@@ -1,46 +1,42 @@
 ﻿using ErrorCentral.Application.ViewModels.LogError;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
+using System;
 
 namespace ErrorCentral.UnitTests.Builders.ViewModels
 {
-    public class CreateLogErrorViewModelBuilder : IBuilder<CreateLogErrorViewModel>
+    public class LogErrorDetailsViewModelBuilder : IBuilder<LogErrorDetailsViewModel>
     {
-        private CreateLogErrorViewModel _createLogErrorViewModel;
+        private LogErrorDetailsViewModel _logErrorDetailsViewModel;
         public string Title => "Run-time exception (line 8): Attempted to divide by zero.";
         public string Details => "[System.DivideByZeroException: Attempted to divide by zero.] \nat Program.Main() :line 8";
         public string Source => "http://production.com/";
         public ELevel Level => ELevel.Error;
         public EEnvironment Environment => EEnvironment.Production;
         public int UserId => 1;
-
-        public CreateLogErrorViewModelBuilder()
+        public DateTimeOffset CreatedAt => DateTimeOffset.UtcNow;
+        public LogErrorDetailsViewModelBuilder()
         {
-            _createLogErrorViewModel = WithDefaultValues();
+            _logErrorDetailsViewModel = WithDefaultValues();
         }
 
-        public CreateLogErrorViewModel WithDefaultValues()
+        public LogErrorDetailsViewModel WithDefaultValues()
         {
-            _createLogErrorViewModel = new CreateLogErrorViewModel()
+            _logErrorDetailsViewModel = new LogErrorDetailsViewModel()
             {
+                UserId = UserId,
                 Title = Title,
                 Details = Details,
-                Source = Source,
                 Level = Level,
                 Environment = Environment,
-                UserId = UserId
+                CreatedAt = CreatedAt,
+                Source = Source,
             };
-            return _createLogErrorViewModel;
+            return _logErrorDetailsViewModel;
         }
 
-        public CreateLogErrorViewModelBuilder WithUserId(int userId)
+        public LogErrorDetailsViewModel Build()
         {
-            _createLogErrorViewModel.UserId = userId;
-            return this;
-        }
-
-        public CreateLogErrorViewModel Build()
-        {
-            return _createLogErrorViewModel;
+            return _logErrorDetailsViewModel;
         }
     }
 }

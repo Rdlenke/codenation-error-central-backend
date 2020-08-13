@@ -19,14 +19,12 @@ namespace ErrorCentral.UnitTests.Application
         private const string Password = "sso2tLHp35Q!";
 
         private readonly Mock<IUserRepository> _userRepositoryMock;
-        private readonly Jwt _jwt;
         private readonly Mock<ITokenService> _tokenService;
 
         public UserServiceTest()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
             _tokenService = new Mock<ITokenService>();
-            _jwt = new Jwt { Secret = "483716eb8a552456316fca19d7ba0b85" };
         }
 
         [Fact(DisplayName = "Create - Return Error If User Already Exists")]
@@ -398,7 +396,6 @@ namespace ErrorCentral.UnitTests.Application
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
             GetUserViewModel result = await service.AuthenticateAsync(user);
 
-            //Assert
             //Assert
             result.Email.Should().BeEquivalentTo(expected.Email);
             result.FirstName.Should().BeEquivalentTo(expected.FirstName);
