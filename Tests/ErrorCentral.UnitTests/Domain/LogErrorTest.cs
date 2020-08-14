@@ -87,5 +87,17 @@ namespace ErrorCentral.UnitTests.Domain
 
             logError.Removed.Should().BeTrue();
         }
+
+        [Fact]
+        public void Archive_log_error_sucess()
+        {
+            // Arrange
+            var logError = new LogErrorBuilder().Build();
+
+            // Act
+            logError.Archive();
+
+            logError.Filed.Should().BeTrue();
+        }
     }
 }
