@@ -5,6 +5,7 @@
   
   body {
     font: 14px sans-serif;
+    background-color: #4F4DDF;
   }
   
   #root {
@@ -19,6 +20,10 @@
     flex-direction: column;
     align-items: stretch;
     margin-top: 50px;
+    background-color: #E5E5E5;
+    padding: 40px;
+    border-radius: 20px;
+    border-color: #262626;
   }
   
   form img {
@@ -64,4 +69,16 @@
   
   button:hover {
     background-color: #000;
+  }
+
+  a {
+    text-decoration: none;
+    margin-top: 15px;
+    align-self: center;
+    color: #444;
+    font-weight: bold;
+  }
+
+  a:hover {
+    color: #111;
   }

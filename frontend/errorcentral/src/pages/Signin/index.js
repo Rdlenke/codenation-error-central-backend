@@ -26,6 +26,7 @@ const Signin = () => {
         <Input name="password" label="Senha" type="password" />
 
         <button type="submit">Entrar</button>
+        <a href="/join">Registre-se</a>
       </Form>
     </div>
   );

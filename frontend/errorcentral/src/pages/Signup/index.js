@@ -27,6 +27,7 @@ const Signup = () => {
       <Input name="password" label="Senha" type="password" />
 
       <button type="submit">Cadastrar</button>
+      <a href="/">Login</a>
     </Form>
   );
 };
