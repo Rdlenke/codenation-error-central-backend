@@ -34,5 +34,10 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
             Level = level;
             Environment = environment;
         }
+        public virtual void Archive()
+        {
+            Filed = true;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
     }
 }
