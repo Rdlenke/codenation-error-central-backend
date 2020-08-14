@@ -2,6 +2,7 @@
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace ErrorCentral.Infrastructure.Config
 {
@@ -22,6 +23,8 @@ namespace ErrorCentral.Infrastructure.Config
 
             builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();
             builder.Property(p => p.UpdatedAt).HasColumnName("updated_at").IsRequired();
+
+            builder.Property(p => p.Guid).HasColumnName("guid").HasDefaultValue(Guid.NewGuid()).IsRequired();
 
             builder.HasMany<LogError>(p => p.LogErrors)
                 .WithOne(p => p.User);

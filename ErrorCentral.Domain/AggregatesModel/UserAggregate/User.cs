@@ -20,6 +20,8 @@ namespace ErrorCentral.Domain.AggregatesModel.UserAggregate
         private readonly List<LogError> _logErrors;
         public IReadOnlyCollection<LogError> LogErrors => _logErrors;
 
+        public Guid Guid { get; set; }
+
         protected User()
         {
             CreatedAt = DateTime.UtcNow;

@@ -53,7 +53,7 @@ namespace ErrorCentral.Application.Services
                 firstName: model.FirstName,
                 password: hashed);
 
-            _userRepository.Create(newUser);
+            User createdUser = _userRepository.Create(newUser);
 
             bool created = await _userRepository.UnitOfWork.SaveChangesAsync() > 0;
 
@@ -69,12 +69,13 @@ namespace ErrorCentral.Application.Services
 
             return new GetUserViewModel
             {
-                Id = newUser.Id,
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName,
+                Id = createdUser.Id,
+                FirstName = createdUser.FirstName,
+                LastName = createdUser.LastName,
                 Token = token,
-                Email = newUser.Email,
+                Email = createdUser.Email,
                 Success = true,
+                Guid = createdUser.Guid
             };
         }
 
@@ -126,7 +127,8 @@ namespace ErrorCentral.Application.Services
                 LastName = user.LastName,
                 Token = token,
                 Success = true,
-                Email = user.Email
+                Email = user.Email,
+                Guid = user.Guid
             };
         }
     }
