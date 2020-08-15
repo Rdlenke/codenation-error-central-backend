@@ -120,7 +120,7 @@ namespace ErrorCentral.Application.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Token = token,
-                Email = user.Email
+                Email = user.Email,
                 Guid = user.Guid
             };
 
