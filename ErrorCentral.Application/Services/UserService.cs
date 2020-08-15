@@ -1,6 +1,7 @@
 using ErrorCentral.Application.ViewModels.User;
 using ErrorCentral.Application.ViewModels.Validators;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using ErrorCentral.Domain.SeedWork;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
@@ -20,27 +21,25 @@ namespace ErrorCentral.Application.Services
             _tokenService = tokenService;
         }
 
-        public async Task<GetUserViewModel> CreateAsync(CreateUserViewModel model)
+        public async Task<Response<GetUserViewModel>> CreateAsync(CreateUserViewModel model)
         {
             CreateUserViewModelValidation validator = new CreateUserViewModelValidation();
             ValidationResult result = validator.Validate(model);
 
             if (!result.IsValid)
             {
-                return new GetUserViewModel
-                {
-                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: result.Errors.Select(x => x.ErrorMessage).ToArray());
+
+                return response;
             }
 
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user != null)
             {
-                return new GetUserViewModel
-                {
-                    Errors = new[] { "This user already exists." }
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new[] { "This user already exists." });
+
+                return response;
             }
 
             PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
@@ -59,27 +58,27 @@ namespace ErrorCentral.Application.Services
 
             if (!created)
             {
-                return new GetUserViewModel
-                {
-                    Errors = new[] { "Unable to create user, try again later." }
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new[] { "Unable to create user, try again later." });
+
+                return response;
             }
 
             string token = _tokenService.GenerateToken(newUser);
 
-            return new GetUserViewModel
-            {
-                Id = createdUser.Id,
-                FirstName = createdUser.FirstName,
-                LastName = createdUser.LastName,
-                Token = token,
-                Email = createdUser.Email,
-                Success = true,
-                Guid = createdUser.Guid
-            };
+            GetUserViewModel responseViewModel = new GetUserViewModel
+                {
+                    Id = newUser.Id,
+                    FirstName = newUser.FirstName,
+                    LastName = newUser.LastName,
+                    Token = token,
+                    Email = newUser.Email,
+                };
+
+            return new Response<GetUserViewModel>(success: true, errors: null, data: responseViewModel);
+
         }
 
-        public async Task<GetUserViewModel> AuthenticateAsync(AuthenticateUserViewModel model)
+        public async Task<Response<GetUserViewModel>> AuthenticateAsync(AuthenticateUserViewModel model)
         {
             AuthenticateUserViewModelValidator validator = new AuthenticateUserViewModelValidator();
 
@@ -87,22 +86,18 @@ namespace ErrorCentral.Application.Services
 
             if (!result.IsValid)
             {
-                return new GetUserViewModel
-                {
-                    Success = false,
-                    Errors = result.Errors.Select(x => x.ErrorMessage).ToArray()
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: result.Errors.Select(x => x.ErrorMessage).ToArray());
+
+                return response;
             }
 
             User user = await _userRepository.GetByEmailAsync(model.Email);
 
             if (user == null)
             {
-                return new GetUserViewModel
-                {
-                    Success = false,
-                    Errors = new[] { "This user doesn't exist. " }
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new[] { "This user doesn't exist. " });
+
+                return response;
             }
 
             PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
@@ -111,25 +106,25 @@ namespace ErrorCentral.Application.Services
 
             if (pvr == PasswordVerificationResult.Failed)
             {
-                return new GetUserViewModel
-                {
-                    Success = false,
-                    Errors = new[] { "Wrong user/password combination, friend. " }
-                };
+                Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new[] { "Wrong user/password combination, friend. " });
+
+
+                return response;
             }
 
             string token = _tokenService.GenerateToken(user);
 
-            return new GetUserViewModel
+            GetUserViewModel responseUserViewModel = new GetUserViewModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Token = token,
-                Success = true,
                 Email = user.Email,
                 Guid = user.Guid
             };
+
+            return new Response<GetUserViewModel>(success: true, data: responseUserViewModel, errors: null);
         }
     }
 }

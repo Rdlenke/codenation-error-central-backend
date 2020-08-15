@@ -2,6 +2,7 @@
 using ErrorCentral.Application.Settings;
 using ErrorCentral.Application.ViewModels.User;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
+using ErrorCentral.Domain.SeedWork;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -47,12 +48,9 @@ namespace ErrorCentral.UnitTests.Application
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "This user already exists." }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(success: false, errors: new[] { "This user already exists." });
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -81,12 +79,9 @@ namespace ErrorCentral.UnitTests.Application
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Unable to create user, try again later." }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(errors: new[] { "Unable to create user, try again later." }, success: false);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -109,14 +104,14 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Password length must have more than 8 characters, with at least one digit, one uppercase character, one lowercase character and one special character" }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(
+                success: false,
+                errors: new[] { "Password length must have more than 8 characters, with at least one digit, one uppercase character, one lowercase character and one special character" }
+            );
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -139,14 +134,11 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Should be an email address!" }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(errors: new[] { "Should be an email address!" }, success: false);
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -169,14 +161,14 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "First Name shouldn't contain whitespaces" }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(
+                success: false,
+                errors: new[] { "First Name shouldn't contain whitespaces" }
+            );
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -199,14 +191,11 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Last Name shouldn't contain whitespaces" }
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(success: false, errors: new[] { "Last Name shouldn't contain whitespaces" });
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -227,16 +216,16 @@ namespace ErrorCentral.UnitTests.Application
 
             User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
 
-            GetUserViewModel expected = new GetUserViewModel
+            GetUserViewModel viewModel = new GetUserViewModel
             {
                 Email = Email,
                 FirstName = FirstName,
                 LastName = LastName,
                 Id = 0,
                 Token = "token",
-                Errors = null,
-                Success = true
             };
+
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(data: viewModel, success: true, errors: null);
 
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
@@ -251,13 +240,13 @@ namespace ErrorCentral.UnitTests.Application
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.CreateAsync(user);
+            Response<GetUserViewModel> result = await service.CreateAsync(user);
 
             //Assert
-            result.Email.Should().BeEquivalentTo(expected.Email);
-            result.FirstName.Should().BeEquivalentTo(expected.FirstName);
-            result.LastName.Should().BeEquivalentTo(expected.LastName);
-            result.Id.Should().Be(expected.Id);
+            result.Data.Email.Should().BeEquivalentTo(expected.Data.Email);
+            result.Data.FirstName.Should().BeEquivalentTo(expected.Data.FirstName);
+            result.Data.LastName.Should().BeEquivalentTo(expected.Data.LastName);
+            result.Data.Id.Should().Be(expected.Data.Id);
             result.Errors.Should().BeEquivalentTo(expected.Errors);
             result.Success.Should().Be(expected.Success);
         }
@@ -277,15 +266,15 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "This user doesn't exist. " },
-                Success = false
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>
+            (
+                errors: new[] { "This user doesn't exist. " },
+                success: false
+            );
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.AuthenticateAsync(user);
+            Response<GetUserViewModel> result = await service.AuthenticateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -305,15 +294,15 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(null));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Should be an email address!" },
-                Success = false
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>
+            (
+                errors: new[] { "Should be an email address!" },
+                success: false
+            );
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.AuthenticateAsync(user);
+            Response<GetUserViewModel> result = await service.AuthenticateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -343,15 +332,11 @@ namespace ErrorCentral.UnitTests.Application
             _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<User>(rawUser));
 
-            GetUserViewModel expected = new GetUserViewModel
-            {
-                Errors = new[] { "Wrong user/password combination, friend. " },
-                Success = false
-            };
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(errors: new[] { "Wrong user/password combination, friend. " }, success: false);
 
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.AuthenticateAsync(user);
+            Response<GetUserViewModel> result = await service.AuthenticateAsync(user);
 
             //Assert
             result.Should().BeEquivalentTo(expected);
@@ -382,25 +367,25 @@ namespace ErrorCentral.UnitTests.Application
             _tokenService.Setup(t => t.GenerateToken(rawUser))
                 .Returns("token client");
 
-            GetUserViewModel expected = new GetUserViewModel
+            GetUserViewModel viewModel = new GetUserViewModel
             {
-                Errors = null,
-                Success = true,
                 Email = Email,
                 FirstName = FirstName,
                 LastName = LastName,
                 Id = 0
             };
 
+            Response<GetUserViewModel> expected = new Response<GetUserViewModel>(errors: null, success: true, data: viewModel);
+
             //Act
             UserService service = new UserService(_userRepositoryMock.Object, _tokenService.Object);
-            GetUserViewModel result = await service.AuthenticateAsync(user);
+            Response<GetUserViewModel> result = await service.AuthenticateAsync(user);
 
             //Assert
-            result.Email.Should().BeEquivalentTo(expected.Email);
-            result.FirstName.Should().BeEquivalentTo(expected.FirstName);
-            result.LastName.Should().BeEquivalentTo(expected.LastName);
-            result.Id.Should().Be(expected.Id);
+            result.Data.Email.Should().BeEquivalentTo(expected.Data.Email);
+            result.Data.FirstName.Should().BeEquivalentTo(expected.Data.FirstName);
+            result.Data.LastName.Should().BeEquivalentTo(expected.Data.LastName);
+            result.Data.Id.Should().Be(expected.Data.Id);
             result.Errors.Should().BeEquivalentTo(expected.Errors);
             result.Success.Should().Be(expected.Success);
         }

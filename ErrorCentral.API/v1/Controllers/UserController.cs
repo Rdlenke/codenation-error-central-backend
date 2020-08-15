@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.User;
+using ErrorCentral.Domain.SeedWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -26,14 +27,14 @@ namespace ErrorCentral.API.v1.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CreateUserAsync([FromBody]CreateUserViewModel createUserViewModel)
         {
-            GetUserViewModel getUserViewModel = await _userService.CreateAsync(createUserViewModel);
+            Response<GetUserViewModel> response = await _userService.CreateAsync(createUserViewModel);
 
-            if(!getUserViewModel.Success)
+            if(!response.Success)
             {
-                return BadRequest(getUserViewModel.Errors);
+                return BadRequest(response.Errors);
             }
 
-            return Ok(getUserViewModel);
+            return Ok(response.Data);
         }
 
         [HttpPost]
@@ -41,14 +42,14 @@ namespace ErrorCentral.API.v1.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AuthenticateUserAsync([FromBody]AuthenticateUserViewModel authenticateUserViewModel)
         {
-            GetUserViewModel getUserViewModel = await _userService.AuthenticateAsync(authenticateUserViewModel);
+            Response<GetUserViewModel> response = await _userService.AuthenticateAsync(authenticateUserViewModel);
 
-            if(!getUserViewModel.Success)
+            if(!response.Success)
             {
-                return BadRequest(getUserViewModel.Errors);
+                return BadRequest(response.Errors);
             }
 
-            return Ok(getUserViewModel);
+            return Ok(response.Data);
         }
     }
 }

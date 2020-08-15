@@ -1,6 +1,7 @@
 ﻿using ErrorCentral.API.v1.Controllers;
 using ErrorCentral.Application.Services;
 using ErrorCentral.Application.ViewModels.User;
+using ErrorCentral.Domain.SeedWork;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -71,15 +72,15 @@ namespace ErrorCentral.UnitTests.API
                 Email = email,
                 FirstName = firstName,
                 LastName = lastName,
-                Success = true,
                 Id = 1,
                 Token = "token",
-                Errors = null
             };
+
+            Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: true, errors: null, data: registeredUser);
 
 
             _userServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateUserViewModel>()))
-                .Returns(Task.FromResult(registeredUser));
+                .Returns(Task.FromResult(response));
 
             //Act
             UserController userController = new UserController(_userServiceMock.Object, _loggerMock.Object);
@@ -110,16 +111,11 @@ namespace ErrorCentral.UnitTests.API
                 Password = password
             };
 
-            GetUserViewModel nonRegisteredUser = new GetUserViewModel
-            {
-                Success = false,
-                Errors = new string[] { "Error" },
-                Token = "token",
-            };
+            Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new string[] { "Error" });
 
 
             _userServiceMock.Setup(x => x.CreateAsync(It.IsAny<CreateUserViewModel>()))
-                .Returns(Task.FromResult(nonRegisteredUser));
+                .Returns(Task.FromResult(response));
 
             //Act
             UserController userController = new UserController(_userServiceMock.Object, _loggerMock.Object);
@@ -147,15 +143,15 @@ namespace ErrorCentral.UnitTests.API
                 Email = UserWebApiTest.Email,
                 FirstName = UserWebApiTest.FirstName,
                 LastName = UserWebApiTest.LastName,
-                Success = true,
                 Id = 1,
                 Token = "token",
-                Errors = null
             };
+
+            Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: true, errors: null, data: registeredUser);
 
 
             _userServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<AuthenticateUserViewModel>()))
-                .Returns(Task.FromResult(registeredUser));
+                .Returns(Task.FromResult(response));
 
             //Act
             UserController userController = new UserController(_userServiceMock.Object, _loggerMock.Object);
@@ -177,15 +173,11 @@ namespace ErrorCentral.UnitTests.API
                 Password = UserWebApiTest.Password
             };
 
-            GetUserViewModel registeredUser = new GetUserViewModel
-            {
-                Success = false,
-                Errors = new string [] { "Error" }
-            };
+            Response<GetUserViewModel> response = new Response<GetUserViewModel>(success: false, errors: new string[] { "Error" });
 
 
             _userServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<AuthenticateUserViewModel>()))
-                .Returns(Task.FromResult(registeredUser));
+                .Returns(Task.FromResult(response));
 
             //Act
             UserController userController = new UserController(_userServiceMock.Object, _loggerMock.Object);
