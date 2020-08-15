@@ -101,6 +101,7 @@ namespace ErrorCentral.Application.Services
                                                         title: x.Title,
                                                         userId: x.UserId,
                                                         details: x.Details,
+                                                        filed: x.Filed,
                                                         events: CountEvents(x, logErrors)));
              
 
@@ -194,6 +195,7 @@ namespace ErrorCentral.Application.Services
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         events: CountEvents(x, logErrors))).ToList();
@@ -202,6 +204,23 @@ namespace ErrorCentral.Application.Services
 
             return response;
         }
+
+        public async Task<Response<int>> UnarchiveAsync(int id)
+        {
+            var logError = await _logErrorRepository.GetByIdAsync(id);
+
+            if (logError == null)
+                return new Response<int>(id, false, new[] { $"object with id {id} not found" });
+
+            logError.Unarchive();
+            _logErrorRepository.Update(logError);
+
+            var result = await _logErrorRepository.UnitOfWork
+                .SaveEntitiesAsync();
+
+            return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
+        }
+
 
         private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
         {

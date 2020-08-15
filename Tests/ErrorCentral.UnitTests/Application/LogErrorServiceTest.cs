@@ -340,6 +340,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: repositoryReturn[0].Level,
                                                         source: repositoryReturn[0].Source,
                                                         title: repositoryReturn[0].Title,
+                                                        filed: repositoryReturn[0].Filed,
                                                         userId: repositoryReturn[0].UserId,
                                                         details: repositoryReturn[0].Details,
                                                         events: 1);
@@ -376,6 +377,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         source: x.Source,
                                                         title: x.Title,
                                                         userId: x.UserId,
+                                                        filed: x.Filed,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
 
@@ -414,6 +416,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
@@ -452,6 +455,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
@@ -493,6 +497,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         source: x.Source,
                                                         title: x.Title,
                                                         userId: x.UserId,
+                                                        filed: x.Filed,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
 
@@ -532,6 +537,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
@@ -570,6 +576,7 @@ namespace ErrorCentral.UnitTests.Application
             var listLogErrors = repositoryReturn
                 .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
                                                         level: x.Level,
+                                                        filed: x.Filed,
                                                         source: x.Source,
                                                         title: x.Title,
                                                         userId: x.UserId,
@@ -610,6 +617,7 @@ namespace ErrorCentral.UnitTests.Application
                 .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
                                                         level: x.Level,
                                                         source: x.Source,
+                                                        filed: x.Filed,
                                                         title: x.Title,
                                                         userId: x.UserId,
                                                         details: x.Details,
@@ -650,6 +658,7 @@ namespace ErrorCentral.UnitTests.Application
                 .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
                                                         level: x.Level,
                                                         source: x.Source,
+                                                        filed: x.Filed,
                                                         title: x.Title,
                                                         userId: x.UserId,
                                                         details: x.Details,
@@ -680,6 +689,37 @@ namespace ErrorCentral.UnitTests.Application
             var result = await service.GetArchived();
 
             // Assert
+            result
+                .Should().BeEquivalentTo(response);
+        }
+
+        [Fact(DisplayName = "Archived - Unarchive log")]
+        public async Task Unarchive_success()
+        {
+            LogError logError = new LogErrorBuilder().Build();
+
+            _logErrorRepositoryMock.Setup(x => x.GetByIdAsync(logError.Id))
+                .Returns(Task.FromResult(logError));
+
+            _logErrorRepositoryMock.Setup(x => x.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(true));
+
+            ListLogErrorsViewModel viewModel = new ListLogErrorsViewModel(
+                userId: logError.UserId,
+                title: logError.Title,
+                level: logError.Level,
+                environment: logError.Environment,
+                source: logError.Source,
+                details: logError.Details,
+                events: 1,
+                filed: false
+            );
+
+            Response<int> response = new Response<int>(success: true, errors: null, data: logError.Id);
+
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.UnarchiveAsync(logError.Id);
+
             result
                 .Should().BeEquivalentTo(response);
         }

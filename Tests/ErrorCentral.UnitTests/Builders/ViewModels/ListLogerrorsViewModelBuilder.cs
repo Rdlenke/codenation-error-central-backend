@@ -18,6 +18,8 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
         public int UserId => 1;
         public int Events => 1;
 
+        public bool Filed => false;
+
         private ListLogErrorsViewModel _listLogErrorsViewModel;
 
         public ListLogerrorsViewModelBuilder()
@@ -32,7 +34,7 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
 
         public ListLogErrorsViewModel WithDefaultValues()
         {
-            return new ListLogErrorsViewModel(userId: UserId, title: Title, level: Level, environment: Environment, source: Source, details: Details, events: Events);
+            return new ListLogErrorsViewModel(userId: UserId, title: Title, level: Level, environment: Environment, source: Source, details: Details, events: Events, filed: Filed);
         }
     }
 }

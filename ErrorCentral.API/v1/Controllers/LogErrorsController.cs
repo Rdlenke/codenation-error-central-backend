@@ -112,10 +112,26 @@ namespace ErrorCentral.API.v1.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetArchived()
         {
             var result = await _logErrorService.GetArchived();
              
+            if (!result.Success)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<Response<int>>> UnarchiveAsync([FromRoute] int id)
+        {
+            var result = await _logErrorService.UnarchiveAsync(id);
+
             if (!result.Success)
                 return NotFound(result);
 

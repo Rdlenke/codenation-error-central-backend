@@ -16,6 +16,8 @@ namespace ErrorCentral.Application.Services
         Task<Response<int>> RemoveAsync(int id);
         Task<Response<int>> ArchiveAsync(int id);
 
+        Task<Response<int>> UnarchiveAsync(int id);
+
         Task<Response<List<ListLogErrorsViewModel>>> GetArchived();
     }
 }
