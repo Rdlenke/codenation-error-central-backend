@@ -45,7 +45,7 @@ namespace ErrorCentral.Infrastructure.Repositories
 
         public async Task<LogError> GetByIdAsync(int id)
         {
-            return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id);
+            return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id && l.Filed == false);
         }
 
         public async Task<List<LogError>> GetArchived()
