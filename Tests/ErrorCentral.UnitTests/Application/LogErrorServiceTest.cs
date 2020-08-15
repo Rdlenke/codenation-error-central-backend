@@ -371,14 +371,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Environment == EEnvironment.Development).ToList();
 
@@ -411,14 +410,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Details")).ToList();
 
@@ -450,14 +448,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Level == ELevel.Debug).ToList();
 
@@ -491,14 +488,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Dotails")).ToList();
 
@@ -532,14 +528,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Source.Equals("127.0.1.1")).ToList();
 
@@ -573,14 +568,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Events).ToList();
 
@@ -613,14 +607,13 @@ namespace ErrorCentral.UnitTests.Application
                 .Returns(repositoryReturn);
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Level).ToList();
 
@@ -636,6 +629,59 @@ namespace ErrorCentral.UnitTests.Application
             // Assert
             result
                 .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Archived - Get all Archived Logs")]
+        public async Task Get_archived()
+        {
+            List<LogError> logErrors = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
+            };
+
+            logErrors[0].Archive();
+            logErrors[1].Archive();
+
+            _logErrorRepositoryMock.Setup(x => x.GetArchived())
+                .Returns(Task.FromResult(logErrors.Take(2).ToList()));
+
+            var listLogErrors = logErrors.Where(x => x.Filed == true)
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, logErrors))).ToList();
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrors, success: true, errors: null);
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.GetArchived();
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(response);
+        }
+
+
+        [Fact(DisplayName = "Archived - Fail to get all Logs")]
+        public async Task Get_archived_fail()
+        {
+            _logErrorRepositoryMock.Setup(x => x.GetArchived())
+                .Returns(Task.FromResult<List<LogError>>(null));
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(success: false, errors: new[] { "There are no errors to show" });
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.GetArchived();
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(response);
         }
 
         [Theory(DisplayName = "Archive - Return Success false if log error not find")]
@@ -745,6 +791,18 @@ namespace ErrorCentral.UnitTests.Application
                 lastName: "Alves",
                 email: "joao@email.com"
             );
+        }
+
+        private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
+        {
+            var list = listAllLogErrors
+                .Where(x => x.Details == logError.Details &&
+                       x.Environment == logError.Environment &&
+                       x.Title == logError.Title &&
+                       x.Source == logError.Source &&
+                       x.Level == logError.Level).ToList();
+
+            return list.Count;
         }
     }
 }

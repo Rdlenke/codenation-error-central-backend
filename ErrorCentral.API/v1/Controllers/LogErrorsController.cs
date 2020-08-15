@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Linq;
+using ErrorCentral.Application.ViewModels.User;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -107,6 +108,16 @@ namespace ErrorCentral.API.v1.Controllers
             var result = await _logErrorService.ArchiveAsync(id);
             if (!result.Success)
                 return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetArchived()
+        {
+            var result = await _logErrorService.GetArchived();
+             
+            if (!result.Success)
+                return NotFound(result);
 
             return Ok(result);
         }

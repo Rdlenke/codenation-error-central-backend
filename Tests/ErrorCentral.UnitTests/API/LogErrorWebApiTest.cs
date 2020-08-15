@@ -270,6 +270,44 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
+        public async Task Get_all_archived_errors()
+        {
+            //Arrange
+            List<ListLogErrorsViewModel> viewModels = new List<ListLogErrorsViewModel> { new ListLogerrorsViewModelBuilder().Build() };
+            Response <List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: viewModels, success: true, errors: null);
+
+            _logErrorServiceMock.Setup(x => x.GetArchived()).Returns(Task.FromResult(response));
+
+            // Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetArchived();
+
+            OkObjectResult result = actionResult.Result as OkObjectResult;
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Get_all_archived_errors_fail()
+        {
+            //Arrange
+            var response = new Response<List<ListLogErrorsViewModel>>(success: false, errors: null);
+            _logErrorServiceMock.Setup(x => x.GetArchived()).Returns(Task.FromResult(response));
+
+            // Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetArchived();
+
+            NotFoundObjectResult result = actionResult.Result as NotFoundObjectResult;
+
+            //Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.NotFound);
+        }
+
+        [Fact]
         public void Get_all_errors_fail()
         {
             //Arrange

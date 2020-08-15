@@ -25,17 +25,17 @@ namespace ErrorCentral.Infrastructure.Repositories
 
         public async Task<LogError> GetById(int id)
         {
-            return await _context.LogErrors.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.LogErrors.FirstOrDefaultAsync(x => x.Id == id && x.Filed == false);
         }
 
         public IList<LogError> GetList()
         {
-            return _context.LogErrors.ToList();
+            return _context.LogErrors.Where(x => x.Filed == false).ToList() ;
         }
 
         public IList<LogError> GetByEnvironment(EEnvironment environment)
         {
-            return _context.LogErrors.Where(x => x.Environment == environment).ToList();
+            return _context.LogErrors.Where(x => x.Environment == environment && x.Filed == false).ToList();
         }
 
         public LogError Update(LogError logError)
@@ -46,6 +46,11 @@ namespace ErrorCentral.Infrastructure.Repositories
         public async Task<LogError> GetByIdAsync(int id)
         {
             return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id);
+        }
+
+        public async Task<List<LogError>> GetArchived()
+        {
+            return await _context.LogErrors.Where(x => x.Filed == true).ToListAsync();
         }
     }
 }

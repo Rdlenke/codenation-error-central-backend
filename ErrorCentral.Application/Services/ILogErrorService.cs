@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using ErrorCentral.Application.ViewModels.Misc;
+using ErrorCentral.Application.ViewModels.User;
 
 namespace ErrorCentral.Application.Services
 {
@@ -14,5 +15,7 @@ namespace ErrorCentral.Application.Services
         Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query);
         Task<Response<int>> RemoveAsync(int id);
         Task<Response<int>> ArchiveAsync(int id);
+
+        Task<Response<List<ListLogErrorsViewModel>>> GetArchived();
     }
 }

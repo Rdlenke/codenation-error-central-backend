@@ -10,6 +10,7 @@ using System.Linq;
 using ErrorCentral.Application.ViewModels.Misc;
 using System.Text.RegularExpressions;
 using ErrorCentral.Application.ViewModels.Validators;
+using ErrorCentral.Application.ViewModels.User;
 
 namespace ErrorCentral.Application.Services
 {
@@ -94,14 +95,13 @@ namespace ErrorCentral.Application.Services
             }
 
             var listLogErrors = logErrors
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, logErrors)));
              
 
             if(query.Environment != 0)
@@ -176,6 +176,43 @@ namespace ErrorCentral.Application.Services
             var result = await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync();
             return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
+        }
+
+        public async Task<Response<List<ListLogErrorsViewModel>>> GetArchived()
+        {
+            var logErrors = await _logErrorRepository.GetArchived();
+
+            if (logErrors == null)
+            {
+                return new Response<List<ListLogErrorsViewModel>>(
+                    success: false,
+                    errors: new[] { "There are no errors to show" });
+            }
+
+            var listLogErrors = logErrors
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, logErrors))).ToList();
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrors, success: true, errors: null);
+
+            return response;
+        }
+
+        private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
+        {
+            var list = listAllLogErrors
+                .Where(x => x.Details == logError.Details &&
+                       x.Environment == logError.Environment &&
+                       x.Title == logError.Title &&
+                       x.Source == logError.Source &&
+                       x.Level == logError.Level).ToList();
+
+            return list.Count;
         }
     }
 }
