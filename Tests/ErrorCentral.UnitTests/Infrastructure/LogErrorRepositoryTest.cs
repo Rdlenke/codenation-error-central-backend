@@ -19,34 +19,14 @@ using Xunit;
 
 namespace ErrorCentral.UnitTests.Infrastructure
 {
-    public class LogErrorRepositoryTest
+    public class LogErrorRepositoryTest : RepositoryTest
     {
-        DbContextOptions<ErrorCentralContext> Options;
-        private readonly DbConnection _connection;
-        private LogError _one;
-        private LogError _two;
+        private List<LogError> _logErrors;
 
-        public LogErrorRepositoryTest(DbContextOptions<ErrorCentralContext> options = null)
+        public LogErrorRepositoryTest() : base()
         {
-            if(options == null)
-            {
-                Options = new DbContextOptionsBuilder<ErrorCentralContext>().UseSqlite(CreateInMemoryDatabase()).Options;
-            }
-
-            _connection = RelationalOptionsExtension.Extract(Options).Connection;
-            _one = new LogErrorBuilder().Build();
-            _two = new LogErrorBuilder().Build();
+            _logErrors = new List<LogError> { new LogErrorBuilder().Build(), new LogErrorBuilder().Build() };
         }
-
-        private static DbConnection CreateInMemoryDatabase()
-        {
-            var connection = new SqliteConnection("Filename=:memory:");
-
-            connection.Open();
-
-            return connection;
-        }
-
 
         private ErrorCentralContext Seed()
         {
@@ -55,13 +35,12 @@ namespace ErrorCentral.UnitTests.Infrastructure
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var userOne = new UserBuilder().Build();
 
-            context.Add(userOne);
+            context.Add(new UserBuilder().Build());
 
             context.SaveChanges();
 
-            context.AddRange(_one, _two);
+            context.AddRange(_logErrors[0], _logErrors[1]);
 
             context.SaveChanges();
 
@@ -69,14 +48,14 @@ namespace ErrorCentral.UnitTests.Infrastructure
         }
 
         [Fact]
-        public void Add_LogError()
+        public async void Add_LogError()
         {
             using (var context = new ErrorCentralContext(Options))
             {
                 var logError = new LogErrorBuilder().Build();
 
                 var repository = new LogErrorRepository(context);
-                LogError result = repository.Add(logError);
+                LogError result = await repository.AddAsync(logError);
 
                 result.Should().BeEquivalentTo(logError);
             }
@@ -89,7 +68,7 @@ namespace ErrorCentral.UnitTests.Infrastructure
             {
                 var repository = new LogErrorRepository(context);
                 
-                LogError result = await repository.GetById(1);
+                LogError result = await repository.GetByIdAsync(1);
 
                 result.Archive();
 
@@ -101,13 +80,13 @@ namespace ErrorCentral.UnitTests.Infrastructure
             }
         }
         [Fact]
-        public void GetByEnvironment_LogError()
+        public async void GetByEnvironment_LogError()
         {
             using (var context = Seed())
             {
                 var repository = new LogErrorRepository(context);
 
-                IList<LogError> result = repository.GetByEnvironment(EEnvironment.Production);
+                IList<LogError> result = await repository.GetByEnvironmentAsync(EEnvironment.Production);
 
                 foreach(LogError logError in result)
                 {
@@ -117,20 +96,18 @@ namespace ErrorCentral.UnitTests.Infrastructure
         }
 
         [Fact]
-        public void GetList_LogError()
+        public async void GetList_LogError()
         {
             using (var context = Seed())
             {
                 LogErrorBuilder builder = new LogErrorBuilder();
-                List<LogError> expected = new List<LogError> { _one, _two };
 
                 var repository = new LogErrorRepository(context);
-                IList<LogError> result = repository.GetList();
+                IList<LogError> result = await repository.GetAllUnarchivedAsync();
 
-                result.Should().BeEquivalentTo(expected);
+                result.Should().BeEquivalentTo(_logErrors);
             }
         }
 
-        public void Dispose() => _connection.Dispose();
     }
 }

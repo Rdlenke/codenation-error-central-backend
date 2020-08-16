@@ -193,7 +193,7 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100, false)]
         [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300, false)]
         [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false)]
-        public void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events, bool filed)
+        public async void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events, bool filed)
         {
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
@@ -213,11 +213,11 @@ namespace ErrorCentral.UnitTests.API
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrorsViewModel, success: true, errors: null);
 
             _logErrorServiceMock.Setup(x => x.Get(null))
-                .Returns(response);
+                .Returns(Task.FromResult(response));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll();
+            var actionResult = await logErrorController.GetAll();
 
             var result = actionResult.Result as OkObjectResult;
 
@@ -233,7 +233,7 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
-        public void Get_all_errors_by_environment()
+        public async void Get_all_errors_by_environment()
         {
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
@@ -251,11 +251,11 @@ namespace ErrorCentral.UnitTests.API
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: expected, success: true, errors: null);
 
             _logErrorServiceMock.Setup(x => x.Get(query))
-                .Returns(response);
+                .Returns(Task.FromResult(response));
 
             // Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll(query);
+            var actionResult = await logErrorController.GetAll(query);
 
             var result = actionResult.Result as OkObjectResult;
 
@@ -309,16 +309,16 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
-        public void Get_all_errors_fail()
+        public async void Get_all_errors_fail()
         {
             //Arrange
             _logErrorServiceMock.Setup(x => x.Get(null))
-                .Returns(new Response<List<ListLogErrorsViewModel>>(success: false, errors: null));
+                .Returns(Task.FromResult(new Response<List<ListLogErrorsViewModel>>(success: false, errors: null)));
 
             //Act
 
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll();
+            var actionResult = await logErrorController.GetAll();
 
             var result = actionResult.Result as NotFoundObjectResult;
 

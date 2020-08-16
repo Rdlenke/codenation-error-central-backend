@@ -52,7 +52,7 @@ namespace ErrorCentral.Application.Services
                 level: model.Level,
                 environment: model.Environment);
 
-            _logErrorRepository.Add(logError);
+            await _logErrorRepository.AddAsync(logError);
 
             var result = await _logErrorRepository.UnitOfWork
                 .SaveEntitiesAsync(cancellationToken);
@@ -62,7 +62,7 @@ namespace ErrorCentral.Application.Services
 
         public async Task<Response<LogErrorDetailsViewModel>> GetLogError(int id)
         {
-            var logError = await _logErrorRepository.GetById(id);
+            var logError = await _logErrorRepository.GetByIdAsync(id);
 
             if (logError == null)
                 return new Response<LogErrorDetailsViewModel>(
@@ -83,9 +83,9 @@ namespace ErrorCentral.Application.Services
             return new Response<LogErrorDetailsViewModel>(data: model, success: true);
         }
 
-        public Response<List<ListLogErrorsViewModel>> Get(GetLogErrorsQueryViewModel query)
+        public async Task<Response<List<ListLogErrorsViewModel>>> Get(GetLogErrorsQueryViewModel query)
         {
-            var logErrors = _logErrorRepository.GetList();
+            var logErrors = await _logErrorRepository.GetAllUnarchivedAsync();
 
             if (logErrors == null)
             {
@@ -181,7 +181,7 @@ namespace ErrorCentral.Application.Services
 
         public async Task<Response<List<ListLogErrorsViewModel>>> GetArchived()
         {
-            var logErrors = await _logErrorRepository.GetArchived();
+            var logErrors = await _logErrorRepository.GetArchivedAsync();
 
             if (logErrors == null)
             {
