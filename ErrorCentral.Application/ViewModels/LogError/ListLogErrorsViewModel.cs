@@ -23,7 +23,9 @@ namespace ErrorCentral.Application.ViewModels.LogError
 
         public string Details { get; set; }
 
-        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, string details, int events)
+        public bool Filed { get; set; }
+
+        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, string details, int events, bool filed)
         {
             UserId = userId;
             Title = title;

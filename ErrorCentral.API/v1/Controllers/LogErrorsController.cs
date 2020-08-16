@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Linq;
+using ErrorCentral.Application.ViewModels.User;
 
 namespace ErrorCentral.API.v1.Controllers
 {
@@ -63,9 +64,9 @@ namespace ErrorCentral.API.v1.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Response<List<ListLogErrorsViewModel>>> GetAll([FromQuery, Optional] GetLogErrorsQueryViewModel query)
+        public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetAll([FromQuery, Optional] GetLogErrorsQueryViewModel query)
         {
-            Response<List<ListLogErrorsViewModel>> model = _logErrorService.Get(query); 
+            Response<List<ListLogErrorsViewModel>> model = await _logErrorService.Get(query); 
 
             if (model.Success == false)
             {
@@ -107,6 +108,33 @@ namespace ErrorCentral.API.v1.Controllers
             var result = await _logErrorService.ArchiveAsync(id);
             if (!result.Success)
                 return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [Route("archived/")]
+        public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetArchived()
+        {
+            var result = await _logErrorService.GetArchived();
+             
+            if (!result.Success)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<Response<int>>> UnarchiveAsync([FromRoute] int id)
+        {
+            var result = await _logErrorService.UnarchiveAsync(id);
+
+            if (!result.Success)
+                return NotFound(result);
 
             return Ok(result);
         }

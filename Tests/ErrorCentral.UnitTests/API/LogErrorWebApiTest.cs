@@ -190,10 +190,10 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Theory]
-        [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100)]
-        [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300)]
-        [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300)]
-        public void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events)
+        [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100, false)]
+        [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300, false)]
+        [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false)]
+        public async void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events, bool filed)
         {
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
@@ -201,6 +201,7 @@ namespace ErrorCentral.UnitTests.API
             listLogErrorsViewModel.Add(
                 new ListLogErrorsViewModel(
                     userId: userId,
+                    filed: filed,
                     title: title,
                     environment: environment,
                     level: level,
@@ -212,11 +213,11 @@ namespace ErrorCentral.UnitTests.API
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrorsViewModel, success: true, errors: null);
 
             _logErrorServiceMock.Setup(x => x.Get(null))
-                .Returns(response);
+                .Returns(Task.FromResult(response));
 
             //Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll();
+            var actionResult = await logErrorController.GetAll();
 
             var result = actionResult.Result as OkObjectResult;
 
@@ -232,14 +233,14 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
-        public void Get_all_errors_by_environment()
+        public async void Get_all_errors_by_environment()
         {
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
 
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300));
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300));
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Development, ELevel.Warning, "Source", "Details", 300));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Development, ELevel.Warning, "Source", "Details", 300, false));
 
             List<ListLogErrorsViewModel> expected = new List<ListLogErrorsViewModel>();
             listLogErrorsViewModel.Add(listLogErrorsViewModel[0]);
@@ -250,11 +251,11 @@ namespace ErrorCentral.UnitTests.API
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: expected, success: true, errors: null);
 
             _logErrorServiceMock.Setup(x => x.Get(query))
-                .Returns(response);
+                .Returns(Task.FromResult(response));
 
             // Act
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll(query);
+            var actionResult = await logErrorController.GetAll(query);
 
             var result = actionResult.Result as OkObjectResult;
 
@@ -270,16 +271,54 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Fact]
-        public void Get_all_errors_fail()
+        public async Task Get_all_archived_errors()
+        {
+            //Arrange
+            List<ListLogErrorsViewModel> viewModels = new List<ListLogErrorsViewModel> { new ListLogerrorsViewModelBuilder().Build() };
+            Response <List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: viewModels, success: true, errors: null);
+
+            _logErrorServiceMock.Setup(x => x.GetArchived()).Returns(Task.FromResult(response));
+
+            // Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetArchived();
+
+            OkObjectResult result = actionResult.Result as OkObjectResult;
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Get_all_archived_errors_fail()
+        {
+            //Arrange
+            var response = new Response<List<ListLogErrorsViewModel>>(success: false, errors: null);
+            _logErrorServiceMock.Setup(x => x.GetArchived()).Returns(Task.FromResult(response));
+
+            // Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.GetArchived();
+
+            NotFoundObjectResult result = actionResult.Result as NotFoundObjectResult;
+
+            //Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async void Get_all_errors_fail()
         {
             //Arrange
             _logErrorServiceMock.Setup(x => x.Get(null))
-                .Returns(new Response<List<ListLogErrorsViewModel>>(success: false, errors: null));
+                .Returns(Task.FromResult(new Response<List<ListLogErrorsViewModel>>(success: false, errors: null)));
 
             //Act
 
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
-            var actionResult = logErrorController.GetAll();
+            var actionResult = await logErrorController.GetAll();
 
             var result = actionResult.Result as NotFoundObjectResult;
 
@@ -294,11 +333,13 @@ namespace ErrorCentral.UnitTests.API
             ELevel level, 
             string source, 
             string details, 
-            int events)
+            int events,
+            bool filed)
         {
             return new ListLogErrorsViewModel(
                     userId: userId,
                     title: title,
+                    filed: filed,
                     environment: environment,
                     level: level,
                     source: source,
@@ -410,6 +451,61 @@ namespace ErrorCentral.UnitTests.API
             var result = Assert.IsType<Response<int>>(okRequestResult.Value);
             result.Success.Should().BeTrue();
             result.Errors.Should().BeNull();
+        }
+
+        [Theory]
+        [Trait("Patch - Operation", "Unarchive")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        public async Task Unarchive_log_error_success(int id)
+        {
+            //Arrange
+            var response = new Response<int>(id, true);
+
+            _logErrorServiceMock.Setup(x => x.UnarchiveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.UnarchiveAsync(id);
+
+            //Assert
+            var okRequestResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            okRequestResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var result = Assert.IsType<Response<int>>(okRequestResult.Value);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeNull();
+        }
+
+        [Theory]
+        [Trait("Patch - Operation", "Unarchive")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        public async Task Unarchive_log_error_failure(int id)
+        {
+            //Arrange
+            var response = new Response<int>(id, false, new[] { $"object with id {id} not found" } );
+
+            _logErrorServiceMock.Setup(x => x.UnarchiveAsync(id))
+                .Returns(Task.FromResult(response));
+
+            //Act
+            var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
+            var actionResult = await logErrorController.UnarchiveAsync(id);
+
+            var result = actionResult.Result as NotFoundObjectResult;
+
+            // Assert
+            result.StatusCode.Should()
+                .Be((int)HttpStatusCode.NotFound);
+
+            result.Value.Should().BeEquivalentTo(response);
         }
     }
 }
