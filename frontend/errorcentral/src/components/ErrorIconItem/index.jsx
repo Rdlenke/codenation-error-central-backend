@@ -25,21 +25,19 @@ const ErrorIconItem = (props) => {
   const classes = useStyles();
 
   function getColorAvatarErrorLevel(level) {
-    if (level === 1)
-      return classes.lightBlue;
-    else if (level === 2)
-      return classes.yellow;
-    else
-      return classes.red;
+    return {
+      1: classes.lightBlue,
+      2: classes.yellow,
+      3: classes.red
+    }[level];
   }
 
   function getIconErrorLevel(level) {
-    if (level === 1)
-      return <BugReportIcon />;
-    else if (level === 2)
-      return <WarningIcon />;
-    else
-      return <ErrorIcon />;
+    return {
+      1: <BugReportIcon />,
+      2: <WarningIcon />,
+      3: <ErrorIcon />
+    }[level];
   }
 
   return (

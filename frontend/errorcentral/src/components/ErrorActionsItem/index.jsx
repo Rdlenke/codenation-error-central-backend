@@ -12,7 +12,7 @@ const ErrorActionsItem = (props) => {
   function handleArchiveClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.patch(`v1/logerros/archive/${props.id}`)
+    api.patch(`v1/logerros/archive/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }
@@ -20,15 +20,15 @@ const ErrorActionsItem = (props) => {
   function handleUnarchiveClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.patch(`v1/logerros/unarchive/${props.id}`)
+    api.patch(`v1/logerros/unarchive/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }
-  
+
   function handleDeleteClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.delete(`v1/logerros/${props.id}`)
+    api.delete(`v1/logerros/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }
@@ -51,7 +51,7 @@ const ErrorActionsItem = (props) => {
 
   return (
     <ListItemSecondaryAction>
-      {getButtonArchiving(props.filed)}
+      {getButtonArchiving(props.error.filed)}
       <IconButton edge="end" aria-label="delete" onClick={handleDeleteClick}>
         <DeleteIcon />
       </IconButton>

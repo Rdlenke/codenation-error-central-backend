@@ -19,15 +19,15 @@ const ErrorItem = (props) => {
     setShowActions(false);
   }
   return (
-    <ListItem button component={Link} to={`erros/${props.id}`} onPointerEnter={handleItemPointerEnter} onPointerLeave={handleItemPointerLeave}>
+    <ListItem button component={Link} to={`erros/${props.error.id}`} onPointerEnter={handleItemPointerEnter} onPointerLeave={handleItemPointerLeave}>
       <ListItemAvatar>
         <ErrorIconItem />
       </ListItemAvatar>
       <ListItemText
-        primary={props.title}
-        secondary={props.origin}
+        primary={props.error.title}
+        secondary={props.error.origin}
       />
-      {showActions && <ErrorActionsItem />}
+      {showActions && <ErrorActionsItem error={props.error} />}
     </ListItem>
   );
 };

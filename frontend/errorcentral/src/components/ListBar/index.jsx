@@ -26,14 +26,14 @@ const useStyles = makeStyles({
   },
 });
 
-const ListBar = () => {
+const ListBar = (props) => {
   const classes = useStyles();
 
   return (
     <Card className={classes.root}>
       <CardContent className={classes.content}>
         <Typography className={classes.title} color="textSecondary">
-          120 resultados
+          {props.lenght ?? 0} resultados
         </Typography>
         <ListFilterMenu />
       </CardContent>
