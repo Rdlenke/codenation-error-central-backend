@@ -1,10 +1,13 @@
 import React from 'react';
+
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow, red, lightBlue } from '@material-ui/core/colors';
 import Avatar from '@material-ui/core/Avatar';
 import WarningIcon from '@material-ui/icons/Warning';
 import ErrorIcon from '@material-ui/icons/Error';
 import BugReportIcon from '@material-ui/icons/BugReport';
+
+import ErrorEventsBadgeIconItem from '../ErrorEventsBadgeIconItem';
 
 export const useStyles = makeStyles((theme) => ({
   red: {
@@ -41,9 +44,15 @@ const ErrorIconItem = (props) => {
   }
 
   return (
-    <Avatar variant="rounded" className={getColorAvatarErrorLevel(props.level)}>
-      {getIconErrorLevel(props.level)}
-    </Avatar>
+    <>
+      {props.level && (
+        <ErrorEventsBadgeIconItem events={props.events}>
+          <Avatar variant="rounded" className={getColorAvatarErrorLevel(props.level)}>
+            {getIconErrorLevel(props.level)}
+          </Avatar>
+        </ErrorEventsBadgeIconItem>
+      )}
+    </>
   );
 }
 

@@ -12,6 +12,10 @@ import ErrorItem from '../../components/ErrorItem';
 import ListBar from '../../components/ListBar';
 import ListNotice from '../../components/ListNotice';
 
+import Errors from '../../mock/errors';
+
+
+
 const useStyles = makeStyles({
   containerProgress: {
     display: 'flex',
@@ -23,25 +27,26 @@ const useStyles = makeStyles({
     alignItems: 'center',
   },
 });
+
 const ListErrors = () => {
   const classes = useStyles();
-  const [errors, setErrors] = useState({ data: null, loading: false, status: 0 });
+  const [errors, setErrors] = useState({ data: [], loading: false, status: 0 });
   useEffect(() => {
-    setErrors({ data: null, loading: true, status: 0 });
+    setErrors({ data: [], loading: true, status: 0 });
     api.get('v1/logerrors')
       .then(response => {})
       .catch(error => {
-        console.log('error', error);
-        setErrors({ loading: false, status: error.request.status });
+        // setErrors({ data: null, loading: false, status: error.request.status });
+        setErrors({ data: Errors, loading: false, status: 0 });
       });
   }, []);
 
   return (
     <Container maxWidth="md">
-      <ListBar lenght={errors.data ? errors.data.lenght : 0} />
+      <ListBar lenght={errors.data ? errors.data.length : 0} />
       {!errors.loading ? (
         <List component="nav" aria-label="errors">
-          {errors.data && errors.data.lenght > 0 ?
+          {errors.data && errors.data.length > 0 ?
             errors.data.map(error => (
               <div key={error.id}>
                 <ErrorItem error={error} />

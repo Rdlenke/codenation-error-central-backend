@@ -21,11 +21,11 @@ const ErrorItem = (props) => {
   return (
     <ListItem button component={Link} to={`erros/${props.error.id}`} onPointerEnter={handleItemPointerEnter} onPointerLeave={handleItemPointerLeave}>
       <ListItemAvatar>
-        <ErrorIconItem />
+        <ErrorIconItem level={props.error.level} events={props.error.events} />
       </ListItemAvatar>
       <ListItemText
         primary={props.error.title}
-        secondary={props.error.origin}
+        secondary={props.error.source}
       />
       {showActions && <ErrorActionsItem error={props.error} />}
     </ListItem>
