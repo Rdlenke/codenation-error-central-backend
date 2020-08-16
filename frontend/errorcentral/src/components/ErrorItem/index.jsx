@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
+
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
+
 import ErrorIconItem from '../ErrorIconItem';
 import ErrorActionsItem from '../ErrorActionsItem';
+
 import { Link } from 'react-router-dom';
+import * as moment from 'moment';
+import 'moment/locale/pt-br';
+moment.locale('pt-br');
 
 const ErrorItem = (props) => {
   const [showActions, setShowActions] = useState(false);
@@ -27,7 +34,13 @@ const ErrorItem = (props) => {
         primary={props.error.title}
         secondary={props.error.source}
       />
-      {showActions && <ErrorActionsItem error={props.error} />}
+      {showActions ? (
+        <ErrorActionsItem error={props.error} />
+      ) : (
+        <Typography color="textSecondary">
+          {moment(props.error.date).fromNow()}
+        </Typography>
+      )}
     </ListItem>
   );
 };
