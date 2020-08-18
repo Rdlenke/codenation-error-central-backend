@@ -2,7 +2,7 @@ import React from "react";
 import { Scope } from "@unform/core";
 import { Form } from "@unform/web";
 import Input from "../../components/Form/input";
-import "../../components/Form/styles.css";
+// import "../../components/Form/styles.css";
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 
 const Signin = () => {
@@ -22,10 +22,12 @@ const Signin = () => {
           alt="logo"
         />
 
-        <Input name="email" label="E-mail" type="email" />
-        <Input name="password" label="Senha" type="password" />
+        <div className="form-container">
+          <Input name="email" label="E-mail" type="email" />
+          <Input name="password" label="Senha" type="password" />
 
-        <button type="submit">Entrar</button>
+          <button type="submit">Entrar</button>
+        </div>
         <a href="/join">Registre-se</a>
       </Form>
     </div>

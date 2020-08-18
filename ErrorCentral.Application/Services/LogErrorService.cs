@@ -163,5 +163,19 @@ namespace ErrorCentral.Application.Services
                 .SaveEntitiesAsync();
             return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
         }
+
+        public async Task<Response<int>> ArchiveAsync(int id)
+        {
+            var logError = await _logErrorRepository.GetByIdAsync(id);
+            if (logError == null)
+                return new Response<int>(id, false, new[] { $"object with id {id} not found" });
+
+            logError.Archive();
+            _logErrorRepository.Update(logError);
+
+            var result = await _logErrorRepository.UnitOfWork
+                .SaveEntitiesAsync();
+            return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
+        }
     }
 }

@@ -9,12 +9,14 @@
   }
   
   #root {
-    margin: 0 auto;
-    max-width: 330px;
-    width: 100%;
+    /* margin: 0 auto; */
+    /* max-width: 330px;
+    width: 100%; */
     padding: 40px 0;
   }
-  
+  .form-container {
+      margin: 20px;
+  }
   form {
     display: flex;
     flex-direction: column;
@@ -24,6 +26,10 @@
     padding: 40px;
     border-radius: 20px;
     border-color: #262626;
+    margin: 0 auto;
+    max-width: 330px;
+    width: 100%;
+    padding: 40px 0;
   }
   
   form img {
