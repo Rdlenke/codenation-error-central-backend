@@ -8,7 +8,7 @@ namespace ErrorCentral.UnitTests.Builders.AggregatesModel
         public string FirstName => "Otavio";
         public string LastName => "Silva";
         public string Email => "otavio@email.com";
-        public string Password => "123";
+        public string Password => "senha123!";
         public UserBuilder()
         {
             _user = WithDefaultValues();

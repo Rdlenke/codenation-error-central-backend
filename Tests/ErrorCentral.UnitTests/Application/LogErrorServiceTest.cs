@@ -42,7 +42,7 @@ namespace ErrorCentral.UnitTests.Application
                 success: false,
                 errors: new[] { "UserId must be greater than 0" });
 
-            
+
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.CreateAsync(logError);
@@ -51,7 +51,7 @@ namespace ErrorCentral.UnitTests.Application
             result
                 .Should().BeEquivalentTo(expected);
         }
-        
+
         [Fact(DisplayName = "Create - Response errors if model is not valid")]
         [Trait("Operation", "Create")]
         public async Task Create_handle_response_success_false_if_model_is_not_valid()
@@ -74,7 +74,7 @@ namespace ErrorCentral.UnitTests.Application
                     "Environment Informed value cannot be assigned"
                 });
 
-            
+
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.CreateAsync(logError);
@@ -257,7 +257,7 @@ namespace ErrorCentral.UnitTests.Application
         public async Task Get_log_error_by_id()
         {
             // Arrange
-            _logErrorRepositoryMock.Setup(x => x.GetById(It.IsAny<int>()))
+            _logErrorRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(new LogErrorBuilder().Build()));
             var builderViewModel = new LogErrorDetailsViewModelBuilder();
             var expected = new Response<LogErrorDetailsViewModel>(data: builderViewModel.Build(), success: true);
@@ -288,7 +288,7 @@ namespace ErrorCentral.UnitTests.Application
         public async Task Get_log_error_by_id_fail(int id)
         {
             // Arrange
-            _logErrorRepositoryMock.Setup(x => x.GetById(id))
+            _logErrorRepositoryMock.Setup(x => x.GetByIdAsync(id))
                 .Returns(Task.FromResult<LogError>(null));
 
             var expected = new Response<LogErrorDetailsViewModel>(
@@ -306,11 +306,11 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return null if couldn't get logError")]
-        public void Get_return_null_if_couldnt_get_logerror()
+        public async void Get_return_null_if_couldnt_get_logerror()
         {
             // Arrange
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns<List<LogError>>(null);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult<IList<LogError>>(null));
 
             var expected = new Response<List<ListLogErrorsViewModel>>(
                     success: false,
@@ -318,7 +318,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(new GetLogErrorsQueryViewModel());
+            var result = await service.Get(new GetLogErrorsQueryViewModel());
 
             // Assert
             result
@@ -326,20 +326,21 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return when there is no query")]
-        public void Get_return_when_there_is_no_query()
+        public async void Get_return_when_there_is_no_query()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() { 
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development)
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var viewModel = new ListLogErrorsViewModel(environment: repositoryReturn[0].Environment,
                                                         level: repositoryReturn[0].Level,
                                                         source: repositoryReturn[0].Source,
                                                         title: repositoryReturn[0].Title,
+                                                        filed: repositoryReturn[0].Filed,
                                                         userId: repositoryReturn[0].UserId,
                                                         details: repositoryReturn[0].Details,
                                                         events: 1);
@@ -350,7 +351,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(new GetLogErrorsQueryViewModel());
+            var result = await service.Get(new GetLogErrorsQueryViewModel());
 
             // Assert
             result
@@ -358,27 +359,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return filtered by Environment")]
-        public void Get_return_filtered_by_environment()
+        public async void Get_return_filtered_by_environment()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        filed: x.Filed,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Environment == EEnvironment.Development).ToList();
 
@@ -390,7 +391,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -398,27 +399,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return filtered by search (level)")]
-        public void Get_return_filtered_by_search_default()
+        public async void Get_return_filtered_by_search_default()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Dotails", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        filed: x.Filed,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Details")).ToList();
 
@@ -429,7 +430,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -437,27 +438,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return filtered by search (level)")]
-        public void Get_return_filtered_by_search_level()
+        public async void Get_return_filtered_by_search_level()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        filed: x.Filed,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Level == ELevel.Debug).ToList();
 
@@ -470,7 +471,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -478,27 +479,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return filtered by search (details)")]
-        public void Get_return_filtered_by_search_details()
+        public async void Get_return_filtered_by_search_details()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Dotails", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        filed: x.Filed,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Details.Equals("Dotails")).ToList();
 
@@ -511,7 +512,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -519,27 +520,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return filtered by search (source)")]
-        public void Get_return_filtered_by_search_source()
+        public async void Get_return_filtered_by_search_source()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        filed: x.Filed,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Source.Equals("127.0.1.1")).ToList();
 
@@ -552,7 +553,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -560,27 +561,27 @@ namespace ErrorCentral.UnitTests.Application
         }
 
         [Fact(DisplayName = "Get - Return sorted (events)")]
-        public void Get_return_sorted_events()
+        public async void Get_return_sorted_events()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        filed: x.Filed,
+                                                        source: x.Source,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Events).ToList();
 
@@ -591,7 +592,7 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
@@ -600,27 +601,27 @@ namespace ErrorCentral.UnitTests.Application
 
         [Fact(DisplayName = "Get - Return sorted (level)")]
 
-        public void Get_return_sorted_level()
+        public async void Get_return_sorted_level()
         {
             // Arrange
-            List<LogError> repositoryReturn = new List<LogError>() {
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Error, EEnvironment.Development),
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Homologation),
             };
 
-            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetList())
-                .Returns(repositoryReturn);
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetAllUnarchivedAsync())
+                .Returns(Task.FromResult(repositoryReturn));
 
             var listLogErrors = repositoryReturn
-                .GroupBy(x => new { x.Environment, x.Level, x.Title, x.Source, x.UserId, x.Details })
-                .Select(x => new ListLogErrorsViewModel(environment: x.Key.Environment,
-                                                        level: x.Key.Level,
-                                                        source: x.Key.Source,
-                                                        title: x.Key.Title,
-                                                        userId: x.Key.UserId,
-                                                        details: x.Key.Details,
-                                                        events: x.Count()));
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        filed: x.Filed,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).OrderByDescending(x => x.Level).ToList();
 
@@ -631,11 +632,96 @@ namespace ErrorCentral.UnitTests.Application
 
             // Act
             LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
-            var result = service.Get(query);
+            var result = await service.Get(query);
 
             // Assert
             result
                 .Should().BeEquivalentTo(expected);
+        }
+
+        [Fact(DisplayName = "Archived - Get all Archived Logs")]
+        public async Task Get_archived()
+        {
+            List<LogError> logErrors = new List<LogError>() {
+                new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "127.0.1.1", ELevel.Debug, EEnvironment.Development),
+                new LogError(1, "Title", "Details", "Source", ELevel.Error, EEnvironment.Development),
+            };
+
+            logErrors[0].Archive();
+            logErrors[1].Archive();
+
+            _logErrorRepositoryMock.Setup(x => x.GetArchivedAsync())
+                .Returns(Task.FromResult(logErrors.Take(2).ToList()));
+
+            var listLogErrors = logErrors.Where(x => x.Filed == true)
+                .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
+                                                        level: x.Level,
+                                                        source: x.Source,
+                                                        filed: x.Filed,
+                                                        title: x.Title,
+                                                        userId: x.UserId,
+                                                        details: x.Details,
+                                                        events: CountEvents(x, logErrors))).ToList();
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrors, success: true, errors: null);
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.GetArchived();
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(response);
+        }
+
+
+        [Fact(DisplayName = "Archived - Fail to get all Logs")]
+        public async Task Get_archived_fail()
+        {
+            _logErrorRepositoryMock.Setup(x => x.GetArchivedAsync())
+                .Returns(Task.FromResult<List<LogError>>(null));
+
+            Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(success: false, errors: new[] { "There are no errors to show" });
+
+            // Act
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.GetArchived();
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(response);
+        }
+
+        [Fact(DisplayName = "Archived - Unarchive log")]
+        public async Task Unarchive_success()
+        {
+            LogError logError = new LogErrorBuilder().Build();
+
+            _logErrorRepositoryMock.Setup(x => x.GetByIdAsync(logError.Id))
+                .Returns(Task.FromResult(logError));
+
+            _logErrorRepositoryMock.Setup(x => x.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(true));
+
+            ListLogErrorsViewModel viewModel = new ListLogErrorsViewModel(
+                userId: logError.UserId,
+                title: logError.Title,
+                level: logError.Level,
+                environment: logError.Environment,
+                source: logError.Source,
+                details: logError.Details,
+                events: 1,
+                filed: false
+            );
+
+            Response<int> response = new Response<int>(success: true, errors: null, data: logError.Id);
+
+            LogErrorService service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.UnarchiveAsync(logError.Id);
+
+            result
+                .Should().BeEquivalentTo(response);
         }
 
         [Theory(DisplayName = "Archive - Return Success false if log error not find")]
@@ -745,6 +831,18 @@ namespace ErrorCentral.UnitTests.Application
                 lastName: "Alves",
                 email: "joao@email.com"
             );
+        }
+
+        private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
+        {
+            var list = listAllLogErrors
+                .Where(x => x.Details == logError.Details &&
+                       x.Environment == logError.Environment &&
+                       x.Title == logError.Title &&
+                       x.Source == logError.Source &&
+                       x.Level == logError.Level).ToList();
+
+            return list.Count;
         }
     }
 }
