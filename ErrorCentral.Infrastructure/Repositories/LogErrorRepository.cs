@@ -18,24 +18,21 @@ namespace ErrorCentral.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public LogError Add(LogError logError)
+        public async Task<LogError> AddAsync(LogError logError)
         {
-            return _context.LogErrors.Add(logError).Entity;
+            var result = await _context.LogErrors.AddAsync(logError);
+
+            return result.Entity;
         }
 
-        public async Task<LogError> GetById(int id)
+        public async Task<IList<LogError>> GetAllUnarchivedAsync()
         {
-            return await _context.LogErrors.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.LogErrors.Where(x => x.Filed == false).ToListAsync() ;
         }
 
-        public IList<LogError> GetList()
+        public async Task<IList<LogError>> GetByEnvironmentAsync(EEnvironment environment)
         {
-            return _context.LogErrors.ToList();
-        }
-
-        public IList<LogError> GetByEnvironment(EEnvironment environment)
-        {
-            return _context.LogErrors.Where(x => x.Environment == environment).ToList();
+            return await _context.LogErrors.Where(x => x.Environment == environment && x.Filed == false).ToListAsync();
         }
 
         public LogError Update(LogError logError)
@@ -45,7 +42,12 @@ namespace ErrorCentral.Infrastructure.Repositories
 
         public async Task<LogError> GetByIdAsync(int id)
         {
-            return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id);
+            return await _context.LogErrors.FirstOrDefaultAsync(l => l.Id == id && l.Filed == false);
+        }
+
+        public async Task<List<LogError>> GetArchivedAsync()
+        {
+            return await _context.LogErrors.Where(x => x.Filed == true).ToListAsync();
         }
     }
 }

@@ -19,5 +19,7 @@ namespace ErrorCentral.Application.ViewModels.LogError
         public DateTimeOffset CreatedAt { get; set; }
 
         public string Source { get; set; }
+
+        public bool Filed { get; set; }
     }
 }

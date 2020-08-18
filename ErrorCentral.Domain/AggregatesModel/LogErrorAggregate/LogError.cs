@@ -39,5 +39,11 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
             Filed = true;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
+
+        public virtual void Unarchive()
+        {
+            Filed = false;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
     }
 }
