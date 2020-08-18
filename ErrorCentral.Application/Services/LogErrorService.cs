@@ -1,4 +1,4 @@
-﻿using ErrorCentral.Application.ViewModels.LogError;
+using ErrorCentral.Application.ViewModels.LogError;
 using ErrorCentral.Domain.AggregatesModel.LogErrorAggregate;
 using ErrorCentral.Domain.AggregatesModel.UserAggregate;
 using ErrorCentral.Domain.SeedWork;
@@ -103,7 +103,7 @@ namespace ErrorCentral.Application.Services
                                                         details: x.Details,
                                                         filed: x.Filed,
                                                         events: CountEvents(x, logErrors)));
-             
+
 
             if(query.Environment != 0)
             {

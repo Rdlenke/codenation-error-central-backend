@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Net;
 using System.Threading.Tasks;
 using ErrorCentral.Application.Services;
@@ -66,7 +66,7 @@ namespace ErrorCentral.API.v1.Controllers
         [HttpGet]
         public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetAll([FromQuery, Optional] GetLogErrorsQueryViewModel query)
         {
-            Response<List<ListLogErrorsViewModel>> model = await _logErrorService.Get(query); 
+            Response<List<ListLogErrorsViewModel>> model = await _logErrorService.Get(query);
 
             if (model.Success == false)
             {
@@ -119,7 +119,7 @@ namespace ErrorCentral.API.v1.Controllers
         public async Task<ActionResult<Response<List<ListLogErrorsViewModel>>>> GetArchived()
         {
             var result = await _logErrorService.GetArchived();
-             
+
             if (!result.Success)
                 return NotFound(result);
 

@@ -42,7 +42,7 @@ namespace ErrorCentral.UnitTests.Application
                 success: false,
                 errors: new[] { "UserId must be greater than 0" });
 
-            
+
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.CreateAsync(logError);
@@ -51,7 +51,7 @@ namespace ErrorCentral.UnitTests.Application
             result
                 .Should().BeEquivalentTo(expected);
         }
-        
+
         [Fact(DisplayName = "Create - Response errors if model is not valid")]
         [Trait("Operation", "Create")]
         public async Task Create_handle_response_success_false_if_model_is_not_valid()
@@ -74,7 +74,7 @@ namespace ErrorCentral.UnitTests.Application
                     "Environment Informed value cannot be assigned"
                 });
 
-            
+
             //Act
             var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
             var result = await service.CreateAsync(logError);
@@ -329,7 +329,7 @@ namespace ErrorCentral.UnitTests.Application
         public async void Get_return_when_there_is_no_query()
         {
             // Arrange
-            IList<LogError> repositoryReturn = new List<LogError>() { 
+            IList<LogError> repositoryReturn = new List<LogError>() {
                 new LogError(1, "Title", "Details", "Source", ELevel.Debug, EEnvironment.Development)
             };
 

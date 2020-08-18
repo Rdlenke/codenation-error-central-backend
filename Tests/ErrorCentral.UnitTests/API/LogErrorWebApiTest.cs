@@ -141,7 +141,7 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(4)]
         public async Task Get_log_error_with_id_invald_and_returns_not_found(int id)
         {
-            //Arrange 
+            //Arrange
             var expected = new Response<LogErrorDetailsViewModel>(
                 success: false,
                 errors: new [] { $"There isn't an log with id {id}" }
@@ -169,7 +169,7 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(4)]
         public async Task Get_log_error_with_id_valid(int id)
         {
-            //Arrange 
+            //Arrange
             var expected = new Response<LogErrorDetailsViewModel>(
                 data: new LogErrorDetailsViewModelBuilder().Build(),
                 success: true
@@ -329,10 +329,10 @@ namespace ErrorCentral.UnitTests.API
 
         private static ListLogErrorsViewModel CreateListLogErrorsViewModel(int userId,
             string title,
-            EEnvironment environment, 
-            ELevel level, 
-            string source, 
-            string details, 
+            EEnvironment environment,
+            ELevel level,
+            string source,
+            string details,
             int events,
             bool filed)
         {
