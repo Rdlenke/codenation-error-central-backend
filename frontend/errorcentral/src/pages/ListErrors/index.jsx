@@ -37,7 +37,9 @@ const ListErrors = () => {
       .then(response => {})
       .catch(error => {
         // setErrors({ data: null, loading: false, status: error.request.status });
-        setErrors({ data: Errors, loading: false, status: 0 });
+        setTimeout(function() {
+          setErrors({ data: Errors, loading: false, status: 0 });
+        }, 1000);
       });
   }, []);
 

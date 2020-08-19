@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const ErrorActionsItem = (props) => {
   function handleArchiveClick(event) {
@@ -36,15 +37,19 @@ const ErrorActionsItem = (props) => {
   function getButtonArchiving(filed) {
     if (filed) {
       return (
-        <IconButton edge="end" aria-label="unarchive" onClick={handleUnarchiveClick}>
-          <UnarchiveIcon />
-        </IconButton>
+        <Tooltip title="Desarquivar">
+          <IconButton edge="end" aria-label="unarchive" onClick={handleUnarchiveClick}>
+            <UnarchiveIcon />
+          </IconButton>
+        </Tooltip>
       );
     } else {
       return (
-        <IconButton edge="end" aria-label="archive" onClick={handleArchiveClick}>
-          <ArchiveIcon />
-        </IconButton>
+        <Tooltip title="Arquivar">
+          <IconButton edge="end" aria-label="archive" onClick={handleArchiveClick}>
+            <ArchiveIcon />
+          </IconButton>
+        </Tooltip>
       );
     }
   }
@@ -52,9 +57,11 @@ const ErrorActionsItem = (props) => {
   return (
     <ListItemSecondaryAction>
       {getButtonArchiving(props.error.filed)}
-      <IconButton edge="end" aria-label="delete" onClick={handleDeleteClick}>
-        <DeleteIcon />
-      </IconButton>
+      <Tooltip title="Remover">
+        <IconButton edge="end" aria-label="delete" onClick={handleDeleteClick}>
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
     </ListItemSecondaryAction>
   );
 }
