@@ -1,14 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Scope } from "@unform/core";
+import api from '../../services/api';
 import { Form } from "@unform/web";
 import Input from "../../components/Form/input";
 // import "../../components/Form/styles.css";
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 import './styles.css'
 
+
+
 const Signup = () => {
+  const [state, setState] = useState({ data: [], loading: false, status: 0 });
+
   function handleSubmit(data, { reset }) {
-    console.log(data);
+    setState({data: [], loading: true, status: 0})
+
+    api.post('v1/User/CreateUser', data)
+      .then(response => {
+        setState({ loading: false})
+
+        console.log(response.data);
+      })
+      .catch(error => {
+        setState({ data: error, loading: false, status: 0 })
+      })
 
     reset();
   }
@@ -22,10 +37,10 @@ const Signup = () => {
         alt="logo"
       />
         <div className="form-container">
-          <Input name="name" label="Nome" />
-          <Input name="name" label="Sobrenome" />
-          <Input name="email" label="E-mail" type="email" />
-          <Input name="password" label="Senha" type="password" />
+          <Input name="FirstName" label="Nome" />
+          <Input name="LastName" label="Sobrenome" />
+          <Input name="Email" label="E-mail" type="email" />
+          <Input name="Password" label="Senha" type="password" />
 
           <button type="submit">Cadastrar</button>
         </div>
