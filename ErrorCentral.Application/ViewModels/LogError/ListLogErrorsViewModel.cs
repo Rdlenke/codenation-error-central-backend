@@ -34,6 +34,7 @@ namespace ErrorCentral.Application.ViewModels.LogError
             Details = details;
             Events = events;
             Environment = environment;
+            Filed = filed;
         }
     }
 }

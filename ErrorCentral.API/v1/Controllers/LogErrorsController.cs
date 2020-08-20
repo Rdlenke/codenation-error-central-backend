@@ -94,7 +94,7 @@ namespace ErrorCentral.API.v1.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("{id:int}")]
+        [HttpPatch("Archive/{id:int}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<Response<int>>> ArchiveAsync([FromRoute] int id)
@@ -106,6 +106,24 @@ namespace ErrorCentral.API.v1.Controllers
                 id);
 
             var result = await _logErrorService.ArchiveAsync(id);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPatch("Unarchive/{id:int}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Response<int>>> UnarchiveAsync([FromRoute] int id)
+        {
+            _logger.LogInformation(
+               "----- Sending request: {ServiceName} - {ServiceMethod}: ({@Id})",
+               nameof(ILogErrorService),
+               "UnarchiveAsync",
+               id);
+
+            var result = await _logErrorService.UnarchiveAsync(id);
             if (!result.Success)
                 return BadRequest(result);
 
@@ -124,19 +142,6 @@ namespace ErrorCentral.API.v1.Controllers
                 return NotFound(result);
 
             return Ok(result);
-        }
-
-        [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<Response<int>>> UnarchiveAsync([FromRoute] int id)
-        {
-            var result = await _logErrorService.UnarchiveAsync(id);
-
-            if (!result.Success)
-                return NotFound(result);
-
-            return Ok(result);
-        }
+        }        
     }
 }

@@ -698,7 +698,7 @@ namespace ErrorCentral.UnitTests.Application
         {
             LogError logError = new LogErrorBuilder().Build();
 
-            _logErrorRepositoryMock.Setup(x => x.GetByIdAsync(logError.Id))
+            _logErrorRepositoryMock.Setup(x => x.GetFiledByIdAsync(logError.Id))
                 .Returns(Task.FromResult(logError));
 
             _logErrorRepositoryMock.Setup(x => x.UnitOfWork.SaveEntitiesAsync(default))
@@ -712,7 +712,7 @@ namespace ErrorCentral.UnitTests.Application
                 source: logError.Source,
                 details: logError.Details,
                 events: 1,
-                filed: false
+                filed: true
             );
 
             Response<int> response = new Response<int>(success: true, errors: null, data: logError.Id);
@@ -730,7 +730,7 @@ namespace ErrorCentral.UnitTests.Application
         [InlineData(3)]
         [InlineData(4)]
         [Trait("Operation", "Patch")]
-        public async Task Patch_handle_return_fail_if_log_error_not_find(int id)
+        public async Task Patch_Archive_handle_return_fail_if_log_error_not_find(int id)
         {
             // Arrange
             _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetByIdAsync(id))
@@ -809,6 +809,94 @@ namespace ErrorCentral.UnitTests.Application
             result
                 .Should().BeEquivalentTo(expected);
         }
+
+        [Theory(DisplayName = "Unarchive - Return Success false if log error not find")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [Trait("Operation", "Patch")]
+        public async Task Patch_Unarchive_handle_return_fail_if_log_error_not_find(int id)
+        {
+            // Arrange
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetByIdAsync(id))
+                .Returns(Task.FromResult<LogError>(null));
+
+            var expected = new Response<int>(
+                data: id,
+                success: false,
+                errors: new[] { $"object with id {id} not found" });
+
+            // Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.UnarchiveAsync(id);
+
+            // Assert
+            _logErrorRepositoryMock.Verify(l => l.GetFiledByIdAsync(id));
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Theory(DisplayName = "Unarchive - Return Success true if log error filed")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [Trait("Operation", "Patch")]
+        public async Task Unarchive_handle_return_success_if_log_error_filed(int id)
+        {
+            // Arrange
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetFiledByIdAsync(id))
+                .Returns(Task.FromResult(FakeLogError()));
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(true));
+
+            var expected = new Response<int>(
+                data: id,
+                success: true);
+
+            // Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.UnarchiveAsync(id);
+
+            // Assert
+            _logErrorRepositoryMock.Verify(l => l.GetFiledByIdAsync(id));
+            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+        [Theory(DisplayName = "Unarchive - Return Success true if log error not persisted")]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [Trait("Operation", "Patch")]
+        public async Task Unarchive_handle_return_success_if_log_error_not_persisted(int id)
+        {
+            // Arrange
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.GetFiledByIdAsync(id))
+                .Returns(Task.FromResult(FakeLogError()));
+            _logErrorRepositoryMock.Setup(logErrorRepo => logErrorRepo.UnitOfWork.SaveEntitiesAsync(default))
+                .Returns(Task.FromResult(false));
+
+            var expected = new Response<int>(
+                data: id,
+                success: false,
+                errors: new[] { $"Error persisting database changes" });
+
+            // Act
+            var service = new LogErrorService(_logErrorRepositoryMock.Object, _userRepositoryMock.Object);
+            var result = await service.UnarchiveAsync(id);
+
+            // Assert
+            _logErrorRepositoryMock.Verify(l => l.GetFiledByIdAsync(id));
+            _logErrorRepositoryMock.Verify(l => l.UnitOfWork.SaveEntitiesAsync(default));
+            result
+                .Should().BeEquivalentTo(expected);
+        }
+
+
 
         private LogError FakeLogError()
         {
