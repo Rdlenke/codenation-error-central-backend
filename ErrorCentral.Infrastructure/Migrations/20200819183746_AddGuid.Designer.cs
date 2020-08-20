@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ErrorCentral.Infrastructure.Migrations
 {
     [DbContext(typeof(ErrorCentralContext))]
-    [Migration("20200808202228_AddGuid")]
+    [Migration("20200819183746_AddGuid")]
     partial class AddGuid
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -113,7 +113,7 @@ namespace ErrorCentral.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("guid")
                         .HasColumnType("uniqueidentifier")
-                        .HasDefaultValue(new Guid("347cf1b7-f83d-4edc-a192-16a4c4be5002"));
+                        .HasDefaultValue(new Guid("17082732-09ed-4c8e-9806-03218b3313d1"));
 
                     b.Property<string>("LastName")
                         .IsRequired()

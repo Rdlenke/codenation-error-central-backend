@@ -111,7 +111,7 @@ namespace ErrorCentral.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("guid")
                         .HasColumnType("uniqueidentifier")
-                        .HasDefaultValue(new Guid("347cf1b7-f83d-4edc-a192-16a4c4be5002"));
+                        .HasDefaultValue(new Guid("17082732-09ed-4c8e-9806-03218b3313d1"));
 
                     b.Property<string>("LastName")
                         .IsRequired()
