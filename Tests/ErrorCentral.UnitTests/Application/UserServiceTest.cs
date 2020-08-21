@@ -6,6 +6,7 @@ using ErrorCentral.Domain.SeedWork;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -216,6 +217,8 @@ namespace ErrorCentral.UnitTests.Application
 
             User rawUser = new User(email: Email, lastName: LastName, firstName: FirstName, password: Password);
 
+            rawUser.Guid = Guid.NewGuid();
+
             GetUserViewModel viewModel = new GetUserViewModel
             {
                 Email = Email,
@@ -223,12 +226,14 @@ namespace ErrorCentral.UnitTests.Application
                 LastName = LastName,
                 Id = 0,
                 Token = "token",
+                Guid = rawUser.Guid
             };
 
             Response<GetUserViewModel> expected = new Response<GetUserViewModel>(data: viewModel, success: true, errors: null);
 
-            _userRepositoryMock.Setup(svc => svc.GetByEmailAsync(It.IsAny<string>()))
-                .Returns(Task.FromResult<User>(null));
+            _userRepositoryMock.SetupSequence(svc => svc.GetByEmailAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult<User>(null))
+                .Returns(Task.FromResult<User>(rawUser));
 
             _userRepositoryMock.Setup(svc => svc.UnitOfWork.SaveChangesAsync(default(CancellationToken)))
                 .Returns(Task.FromResult(1));
@@ -247,6 +252,7 @@ namespace ErrorCentral.UnitTests.Application
             result.Data.FirstName.Should().BeEquivalentTo(expected.Data.FirstName);
             result.Data.LastName.Should().BeEquivalentTo(expected.Data.LastName);
             result.Data.Id.Should().Be(expected.Data.Id);
+            result.Data.Guid.Should().Be(expected.Data.Guid);
             result.Errors.Should().BeEquivalentTo(expected.Errors);
             result.Success.Should().Be(expected.Success);
         }

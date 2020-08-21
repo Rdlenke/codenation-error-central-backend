@@ -99,5 +99,17 @@ namespace ErrorCentral.UnitTests.Domain
 
             logError.Filed.Should().BeTrue();
         }
+
+        [Fact]
+        public void Unarchive_log_error_sucess()
+        {
+            // Arrange
+            var logError = new LogErrorBuilder().Build();
+
+            // Act
+            logError.Unarchive();
+
+            logError.Filed.Should().BeFalse();
+        }
     }
 }

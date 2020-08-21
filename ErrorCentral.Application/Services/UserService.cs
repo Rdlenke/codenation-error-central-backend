@@ -52,7 +52,7 @@ namespace ErrorCentral.Application.Services
                 firstName: model.FirstName,
                 password: hashed);
 
-            User createdUser = _userRepository.Create(newUser);
+            _userRepository.Create(newUser);
 
             bool created = await _userRepository.UnitOfWork.SaveChangesAsync() > 0;
 
@@ -63,19 +63,21 @@ namespace ErrorCentral.Application.Services
                 return response;
             }
 
-            string token = _tokenService.GenerateToken(newUser);
+            User createdUser = await _userRepository.GetByEmailAsync(newUser.Email);
+
+            string token = _tokenService.GenerateToken(createdUser);
 
             GetUserViewModel responseViewModel = new GetUserViewModel
                 {
-                    Id = newUser.Id,
-                    FirstName = newUser.FirstName,
-                    LastName = newUser.LastName,
+                    Id = createdUser.Id,
+                    FirstName = createdUser.FirstName,
+                    LastName = createdUser.LastName,
                     Token = token,
-                    Email = newUser.Email,
-                };
+                    Email = createdUser.Email,
+                    Guid = createdUser.Guid
+            };
 
             return new Response<GetUserViewModel>(success: true, errors: null, data: responseViewModel);
-
         }
 
         public async Task<Response<GetUserViewModel>> AuthenticateAsync(AuthenticateUserViewModel model)

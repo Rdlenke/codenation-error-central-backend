@@ -179,6 +179,22 @@ namespace ErrorCentral.Application.Services
             return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
         }
 
+        public async Task<Response<int>> UnarchiveAsync(int id)
+        {
+            var logError = await _logErrorRepository.GetFiledByIdAsync(id);
+            if (logError == null)
+                return new Response<int>(id, false, new[] { $"object with id {id} not found" });
+
+            logError.Unarchive();
+            _logErrorRepository.Update(logError);
+
+            var result = await _logErrorRepository.UnitOfWork
+                .SaveEntitiesAsync();
+
+            return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
+        }
+
+
         public async Task<Response<List<ListLogErrorsViewModel>>> GetArchived()
         {
             var logErrors = await _logErrorRepository.GetArchivedAsync();
@@ -203,24 +219,7 @@ namespace ErrorCentral.Application.Services
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrors, success: true, errors: null);
 
             return response;
-        }
-
-        public async Task<Response<int>> UnarchiveAsync(int id)
-        {
-            var logError = await _logErrorRepository.GetByIdAsync(id);
-
-            if (logError == null)
-                return new Response<int>(id, false, new[] { $"object with id {id} not found" });
-
-            logError.Unarchive();
-            _logErrorRepository.Update(logError);
-
-            var result = await _logErrorRepository.UnitOfWork
-                .SaveEntitiesAsync();
-
-            return result ? new Response<int>(id, result) : new Response<int>(id, false, new[] { $"Error persisting database changes" });
-        }
-
+        }       
 
         private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
         {

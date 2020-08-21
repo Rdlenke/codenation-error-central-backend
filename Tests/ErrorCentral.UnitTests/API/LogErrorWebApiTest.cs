@@ -486,12 +486,10 @@ namespace ErrorCentral.UnitTests.API
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
-        [InlineData(5)]
-        public async Task Unarchive_log_error_failure(int id)
+        public async Task Unarchive_log_error_bad_request(int id)
         {
             //Arrange
-            var response = new Response<int>(id, false, new[] { $"object with id {id} not found" } );
-
+            var response = new Response<int>(false, new[] { $"object with id {id} not found" });
             _logErrorServiceMock.Setup(x => x.UnarchiveAsync(id))
                 .Returns(Task.FromResult(response));
 
@@ -499,13 +497,14 @@ namespace ErrorCentral.UnitTests.API
             var logErrorController = new LogErrorsController(_logErrorServiceMock.Object, _loggerMock.Object);
             var actionResult = await logErrorController.UnarchiveAsync(id);
 
-            var result = actionResult.Result as NotFoundObjectResult;
 
-            // Assert
-            result.StatusCode.Should()
-                .Be((int)HttpStatusCode.NotFound);
-
-            result.Value.Should().BeEquivalentTo(response);
+            //Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            badRequestResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var result = Assert.IsType<Response<int>>(badRequestResult.Value);
+            result.Success.Should().BeFalse();
+            result.Errors.Length.Should().Be(1);
+            result.Errors.Should().Equal(response.Errors);
         }
     }
 }

@@ -1,13 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { Scope } from "@unform/core";
+import api from '../../services/api';
+
 import { Form } from "@unform/web";
 import Input from "../../components/Form/input";
 // import "../../components/Form/styles.css";
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 
-const Signin = () => {
+import { connect } from 'react-redux';
+import { addUser } from '../../redux/actions/actionCreators';
+import { useHistory } from "react-router-dom";
+
+
+const Signin = (props) => {
+  const [state, setState] = useState({ data: [], loading: false, status: 0 });
+  const history = useHistory();
+
   function handleSubmit(data, { reset }) {
-    console.log(data);
+    setState({data: [], loading: true, status: 0})
+
+    // props.addUser({email: "email", firstName: "name", lastName: "name", token: "token", guid: "guid"})
+    // history.push("/");
+
+    api.post('v1/User/AuthenticateUser', data)
+      .then(response => {
+
+        setState({ loading: false });
+
+        props.addUser(response.data);
+
+        history.push("/");
+
+      })
+      .catch(error => {
+        setState({ data: error, loading: false, status: 0 })
+      });
 
     reset();
   }
@@ -23,8 +50,8 @@ const Signin = () => {
         />
 
         <div className="form-container">
-          <Input name="email" label="E-mail" type="email" />
-          <Input name="password" label="Senha" type="password" />
+          <Input name="Email" label="E-mail" type="email" />
+          <Input name="Password" label="Senha" type="password" />
 
           <button type="submit">Entrar</button>
         </div>
@@ -34,4 +61,6 @@ const Signin = () => {
   );
 };
 
-export default Signin;
+const mapDispatchToProps = { addUser }
+
+export default connect(null, mapDispatchToProps)(Signin);
