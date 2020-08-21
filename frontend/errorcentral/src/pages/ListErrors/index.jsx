@@ -46,34 +46,24 @@ const ListErrors = () => {
   }, []);
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="md">
       <ListBar lenght={errors.data ? errors.data.length : 0} />
-      <Grid container spacing={2}>
-        <Grid item>
-          <h1>Ola</h1>
-        </Grid>
-        <Grid
-          item xs={12} sm container
-          direction="column"
-        >
-          {!errors.loading ? (
-            <List component="nav" aria-label="errors">
-              {errors.data && errors.data.length > 0 ?
-                errors.data.map(error => (
-                  <div key={error.id}>
-                    <ErrorItem error={error} />
-                    <Divider />
-                  </div>
-                )) : <ListNotice status={errors.status} />
-              }
-            </List>
-          ) : (
-            <div className={classes.containerProgress}>
-              <CircularProgress />
-            </div>
-          )}
-        </Grid>
-      </Grid>
+        {!errors.loading ? (
+          <List component="nav" aria-label="errors">
+            {errors.data && errors.data.length > 0 ?
+              errors.data.map(error => (
+                <div key={error.id}>
+                  <ErrorItem error={error} />
+                  <Divider />
+                </div>
+              )) : <ListNotice status={errors.status} />
+            }
+          </List>
+        ) : (
+          <div className={classes.containerProgress}>
+            <CircularProgress />
+          </div>
+        )}
     </Container>
   );
 }
