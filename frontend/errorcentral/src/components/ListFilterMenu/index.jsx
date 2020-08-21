@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import { lightBlue } from '@material-ui/core/colors';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Popover from '@material-ui/core/Popover';
+import Button from '@material-ui/core/Button';
+
+import FilterErrorOrder from '../FilterErrorOrder';
+import FilterErrorEnvironment from '../FilterErrorEnvironment';
+import { Divider } from '@material-ui/core';
 
 const useStyles = makeStyles({
   button: {
@@ -13,6 +16,10 @@ const useStyles = makeStyles({
   },
   iconButton: {
     paddingLeft: 3,
+  },
+  popover: {
+    display: 'flex',
+    flexDirection: 'column',
   }
 });
 
@@ -28,23 +35,39 @@ const ListFilterMenu = () => {
     setAnchorEl(null);
   };
 
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
   return (
     <div>
-      <Button className={classes.button} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+      <Button
+        aria-describedby={id}
+        className={classes.button}
+        onClick={handleClick}
+      >
         Filtrar
         <ExpandMoreIcon fontSize="small" className={classes.iconButton} />
       </Button>
-      <Menu
-        id="simple-menu"
+      <Popover
+        id={id}
+        open={open}
         anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
         onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
-      </Menu>
+        <div className={classes.popover}>
+          <FilterErrorOrder />
+          <Divider />
+          <FilterErrorEnvironment />
+        </div>
+      </Popover>
     </div>
   );
 }
