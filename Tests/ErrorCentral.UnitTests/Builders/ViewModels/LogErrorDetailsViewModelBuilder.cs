@@ -15,7 +15,7 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
         public int UserId => 1;
         public DateTimeOffset CreatedAt => DateTimeOffset.UtcNow;
 
-        public int Id => Id;
+        public int Id => 1;
 
         public LogErrorDetailsViewModelBuilder()
         {
