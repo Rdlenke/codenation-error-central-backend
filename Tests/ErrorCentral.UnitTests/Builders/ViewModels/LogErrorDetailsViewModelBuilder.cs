@@ -14,6 +14,9 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
         public EEnvironment Environment => EEnvironment.Production;
         public int UserId => 1;
         public DateTimeOffset CreatedAt => DateTimeOffset.UtcNow;
+
+        public int Id => Id;
+
         public LogErrorDetailsViewModelBuilder()
         {
             _logErrorDetailsViewModel = WithDefaultValues();
@@ -30,6 +33,7 @@ namespace ErrorCentral.UnitTests.Builders.ViewModels
                 Environment = Environment,
                 CreatedAt = CreatedAt,
                 Source = Source,
+                Id = Id
             };
             return _logErrorDetailsViewModel;
         }

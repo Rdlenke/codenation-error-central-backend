@@ -25,7 +25,9 @@ namespace ErrorCentral.Application.ViewModels.LogError
 
         public bool Filed { get; set; }
 
-        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, string details, int events, bool filed)
+        public int Id { get; set; }
+
+        public ListLogErrorsViewModel(int userId, string title, ELevel level, EEnvironment environment, string source, string details, int events, bool filed, int id)
         {
             UserId = userId;
             Title = title;
@@ -35,6 +37,7 @@ namespace ErrorCentral.Application.ViewModels.LogError
             Events = events;
             Environment = environment;
             Filed = filed;
+            Id = id;
         }
     }
 }

@@ -190,10 +190,10 @@ namespace ErrorCentral.UnitTests.API
         }
 
         [Theory]
-        [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100, false)]
-        [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300, false)]
-        [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false)]
-        public async void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events, bool filed)
+        [InlineData(1, "My LogError", EEnvironment.Development, ELevel.Debug, "Source", "Details", 100, false, 1)]
+        [InlineData(2, "Your Log Error", EEnvironment.Homologation, ELevel.Error, "Source", "Details", 300, false, 2)]
+        [InlineData(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false, 3)]
+        public async void Get_all_log_errors(int userId, string title, EEnvironment environment, ELevel level, string source, string details, int events, bool filed, int id)
         {
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
@@ -207,7 +207,8 @@ namespace ErrorCentral.UnitTests.API
                     level: level,
                     source: source,
                     details: details,
-                    events: events
+                    events: events,
+                    id: id
                 ));
 
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrorsViewModel, success: true, errors: null);
@@ -238,9 +239,9 @@ namespace ErrorCentral.UnitTests.API
             //Arrange
             List<ListLogErrorsViewModel> listLogErrorsViewModel = new List<ListLogErrorsViewModel>();
 
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false));
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false));
-            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Development, ELevel.Warning, "Source", "Details", 300, false));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(5, "Our Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false, 1));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Production, ELevel.Warning, "Source", "Details", 300, false, 2));
+            listLogErrorsViewModel.Add(CreateListLogErrorsViewModel(1, "Log Error", EEnvironment.Development, ELevel.Warning, "Source", "Details", 300, false, 3));
 
             List<ListLogErrorsViewModel> expected = new List<ListLogErrorsViewModel>();
             listLogErrorsViewModel.Add(listLogErrorsViewModel[0]);
@@ -334,7 +335,8 @@ namespace ErrorCentral.UnitTests.API
             string source,
             string details,
             int events,
-            bool filed)
+            bool filed,
+            int id)
         {
             return new ListLogErrorsViewModel(
                     userId: userId,
@@ -344,7 +346,8 @@ namespace ErrorCentral.UnitTests.API
                     level: level,
                     source: source,
                     details: details,
-                    events: events
+                    events: events,
+                    id: id
                 );
         }
 
