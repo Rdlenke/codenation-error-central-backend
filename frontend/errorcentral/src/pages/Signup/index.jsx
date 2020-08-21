@@ -1,14 +1,38 @@
-import React from "react";
-import { Scope } from "@unform/core";
+import React, { useState } from "react";
+import api from '../../services/api';
 import { Form } from "@unform/web";
 import Input from "../../components/Form/input";
 // import "../../components/Form/styles.css";
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 import './styles.css'
+import { connect } from 'react-redux';
+import { addUser } from '../../redux/actions/actionCreators';
+import { useHistory } from "react-router-dom";
 
-const Signup = () => {
+
+const Signup = (props) => {
+  const [state, setState] = useState({ data: [], loading: false, status: 0 });
+  const history = useHistory();
+
   function handleSubmit(data, { reset }) {
-    console.log(data);
+    setState({data: [], loading: true, status: 0})
+
+    // props.addUser({email: "email", firstName: "name", lastName: "name", token: "token", guid: "guid"})
+    // history.push("/");
+
+    api.post('v1/User/CreateUser', data)
+      .then(response => {
+
+        setState({ loading: false});
+
+        props.addUser(response.data);
+
+        history.push("/");
+
+      })
+      .catch(error => {
+        setState({ data: error, loading: false, status: 0 })
+      })
 
     reset();
   }
@@ -22,10 +46,10 @@ const Signup = () => {
         alt="logo"
       />
         <div className="form-container">
-          <Input name="name" label="Nome" />
-          <Input name="name" label="Sobrenome" />
-          <Input name="email" label="E-mail" type="email" />
-          <Input name="password" label="Senha" type="password" />
+          <Input name="FirstName" label="Nome" />
+          <Input name="LastName" label="Sobrenome" />
+          <Input name="Email" label="E-mail" type="email" />
+          <Input name="Password" label="Senha" type="password" />
 
           <button type="submit">Cadastrar</button>
         </div>
@@ -34,4 +58,7 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+const mapDispatchToProps = { addUser };
+
+
+export default connect(null, mapDispatchToProps)(Signup);

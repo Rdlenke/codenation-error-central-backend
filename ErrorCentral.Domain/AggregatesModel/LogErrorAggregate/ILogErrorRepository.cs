@@ -11,6 +11,7 @@ namespace ErrorCentral.Domain.AggregatesModel.LogErrorAggregate
         Task<IList<LogError>> GetByEnvironmentAsync(EEnvironment Environment);
         LogError Update(LogError logError);
         Task<LogError> GetByIdAsync(int id);
+        Task<LogError> GetFiledByIdAsync(int id);
         Task<List<LogError>> GetArchivedAsync();
     }
 }
