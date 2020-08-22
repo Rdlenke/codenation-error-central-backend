@@ -1,10 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Errors from '../../mock/errors';
 import backIcon from '../../assets/icons/back.svg'
-import logoImg from '../../assets/images/ErrorCentralLogo.png';
-
 import './styles.css';
 
 const DetailsError = () => {

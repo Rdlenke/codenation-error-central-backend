@@ -21,5 +21,7 @@ namespace ErrorCentral.Application.ViewModels.LogError
         public string Source { get; set; }
 
         public bool Filed { get; set; }
+
+        public int Id { get; set; }
     }
 }

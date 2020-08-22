@@ -343,6 +343,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         filed: repositoryReturn[0].Filed,
                                                         userId: repositoryReturn[0].UserId,
                                                         details: repositoryReturn[0].Details,
+                                                        id: repositoryReturn[0].Id,
                                                         events: 1);
 
             var list = new List<ListLogErrorsViewModel>() { viewModel };
@@ -379,6 +380,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         userId: x.UserId,
                                                         filed: x.Filed,
                                                         details: x.Details,
+                                                        id: x.Id,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
 
             var obtained = listLogErrors.Select(x => x).Where(x => x.Environment == EEnvironment.Development).ToList();
@@ -416,6 +418,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        id: x.Id,
                                                         filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
@@ -455,6 +458,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        id: x.Id,
                                                         filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
@@ -496,6 +500,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        id: x.Id,
                                                         userId: x.UserId,
                                                         filed: x.Filed,
                                                         details: x.Details,
@@ -537,6 +542,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         level: x.Level,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        id: x.Id,
                                                         filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
@@ -579,6 +585,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         filed: x.Filed,
                                                         source: x.Source,
                                                         title: x.Title,
+                                                        id: x.Id,
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         events: CountEvents(x, repositoryReturn))).ToList();
@@ -617,6 +624,7 @@ namespace ErrorCentral.UnitTests.Application
                 .Select(x => new ListLogErrorsViewModel(environment: x.Environment,
                                                         level: x.Level,
                                                         source: x.Source,
+                                                        id: x.Id,
                                                         filed: x.Filed,
                                                         title: x.Title,
                                                         userId: x.UserId,
@@ -661,6 +669,7 @@ namespace ErrorCentral.UnitTests.Application
                                                         filed: x.Filed,
                                                         title: x.Title,
                                                         userId: x.UserId,
+                                                        id: x.Id,
                                                         details: x.Details,
                                                         events: CountEvents(x, logErrors))).ToList();
 
@@ -708,6 +717,7 @@ namespace ErrorCentral.UnitTests.Application
                 userId: logError.UserId,
                 title: logError.Title,
                 level: logError.Level,
+                id: logError.Id,
                 environment: logError.Environment,
                 source: logError.Source,
                 details: logError.Details,

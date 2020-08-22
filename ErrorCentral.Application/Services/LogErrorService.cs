@@ -78,6 +78,7 @@ namespace ErrorCentral.Application.Services
                 Environment = logError.Environment,
                 CreatedAt = logError.CreatedAt,
                 Source = logError.Source,
+                Id = logError.Id
             };
 
             return new Response<LogErrorDetailsViewModel>(data: model, success: true);
@@ -102,6 +103,7 @@ namespace ErrorCentral.Application.Services
                                                         userId: x.UserId,
                                                         details: x.Details,
                                                         filed: x.Filed,
+                                                        id: x.Id,
                                                         events: CountEvents(x, logErrors)));
 
 
@@ -214,12 +216,13 @@ namespace ErrorCentral.Application.Services
                                                         filed: x.Filed,
                                                         userId: x.UserId,
                                                         details: x.Details,
+                                                        id: x.Id,
                                                         events: CountEvents(x, logErrors))).ToList();
 
             Response<List<ListLogErrorsViewModel>> response = new Response<List<ListLogErrorsViewModel>>(data: listLogErrors, success: true, errors: null);
 
             return response;
-        }       
+        }
 
         private int CountEvents(LogError logError, IList<LogError> listAllLogErrors)
         {
