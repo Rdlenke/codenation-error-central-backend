@@ -69,6 +69,11 @@ namespace ErrorCentral.API
             {
                 endpoints.MapControllers();
             });
+
+            app.UseCors(builder => builder
+             .AllowAnyOrigin()
+             .AllowAnyMethod()
+             .AllowAnyHeader());
         }
     }
 
