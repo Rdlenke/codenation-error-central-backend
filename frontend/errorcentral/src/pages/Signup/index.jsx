@@ -3,7 +3,7 @@ import api from '../../services/api';
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 import { connect } from 'react-redux';
 import { addUser } from '../../redux/actions/actionCreators';
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -174,7 +174,15 @@ const Signup = (props) => {
         >
           Cadastrar
         </Button>
-        <a href="/login" className={classes.marginBottom}>Login</a>
+        <Button
+          component={Link}
+          to="/login"
+          variant="outlined"
+          color="inherit"
+          disableElevation
+        >
+          Logar-se
+        </Button>
       </Paper>
     </form>
   );

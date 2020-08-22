@@ -4,7 +4,7 @@ import logoImg from '../../assets/images/ErrorCentralLogo.png';
 
 import { connect } from 'react-redux';
 import { addUser } from '../../redux/actions/actionCreators';
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -144,7 +144,15 @@ const Signin = (props) => {
         >
           Entrar
         </Button>
-        <a href="/join" className={classes.marginBottom}>Registre-se</a>
+        <Button
+          component={Link}
+          to="/join"
+          variant="outlined"
+          color="inherit"
+          disableElevation
+        >
+          Registrar-se
+        </Button>
       </Paper>
     </form>
   );
