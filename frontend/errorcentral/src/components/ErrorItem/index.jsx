@@ -26,7 +26,7 @@ const ErrorItem = (props) => {
     setShowActions(false);
   }
   return (
-    <ListItem button component={Link} to={`erros/${props.error.id}`} onPointerEnter={handleItemPointerEnter} onPointerLeave={handleItemPointerLeave}>
+    <ListItem button component={Link} to={ `erros/${props.error.id}`} onPointerEnter={handleItemPointerEnter} onPointerLeave={handleItemPointerLeave}>
       <ListItemAvatar>
         <ErrorIconItem level={props.error.level} events={props.error.events} />
       </ListItemAvatar>

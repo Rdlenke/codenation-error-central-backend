@@ -47,9 +47,12 @@ const Header = (props) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleClick = () => {
     props.removeUser();
     history.push('/login');
-  };
+  }
 
   return (
     <div className={classes.root}>
@@ -88,7 +91,7 @@ const Header = (props) => {
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Sair</MenuItem>
+                <MenuItem onClick={handleClick}>Sair</MenuItem>
               </Menu>
             </div>
           ) : (

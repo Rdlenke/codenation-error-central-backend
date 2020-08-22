@@ -31,10 +31,13 @@ const useStyles = makeStyles({
 const ListErrors = () => {
   const classes = useStyles();
   const [errors, setErrors] = useState({ data: [], loading: false, status: 0 });
+
   useEffect(() => {
     setErrors({ data: [], loading: true, status: 0 });
     api.get('v1/logerrors')
-      .then(response => {})
+      .then(response => {
+        setErrors({ data: response.data.data, loading: false, status: 0})
+      })
       .catch(error => {
         // setErrors({ data: null, loading: false, status: error.request.status });
         setErrors({ data: Errors, loading: false, status: 0 });

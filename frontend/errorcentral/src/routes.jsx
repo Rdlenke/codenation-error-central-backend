@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, BrowserRouter } from 'react-router-dom';
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import ListErrors from './pages/ListErrors';
@@ -11,10 +11,13 @@ const Routes = () => {
   return (
     <BrowserRouter>
       <Header />
-      <ProtectedRoute component={ListErrors} path='/' exact />
-      <ProtectedRoute component={DetailsError} path='/erros/:id' />
-      <Route component={Signin} path='/login' />
-      <Route component={Signup} path='/join' />
+      <Switch>
+
+        <ProtectedRoute component={DetailsError} path='/erros/:id' exact/>
+        <ProtectedRoute component={ListErrors} path='/' exact />
+        <Route component={Signin} path='/login' />
+        <Route component={Signup} path='/join' />
+      </Switch>
     </BrowserRouter>
   );
 };

@@ -55,6 +55,7 @@ const Signup = (props) => {
     lastName: '',
     showPassword: false,
   });
+
   const history = useHistory();
 
 
