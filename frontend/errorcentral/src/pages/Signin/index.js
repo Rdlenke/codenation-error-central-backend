@@ -27,6 +27,8 @@ const Signin = (props) => {
 
         setState({ loading: false });
 
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;;
+
         props.addUser(response.data);
 
         history.push("/");

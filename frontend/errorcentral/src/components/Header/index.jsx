@@ -8,7 +8,11 @@ import Typography from '@material-ui/core/Typography';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
+import { useHistory } from "react-router-dom";
+import { removeUser } from '../../redux/actions/actionCreators';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,15 +31,15 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-const Header = () => {
+
+const Header = (props) => {
   const classes = useStyles();
-  const [auth, setAuth] = useState(false);
+  const auth = props.user.token !== "" ? true : false;
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
-  };
+  const history = useHistory();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -43,7 +47,10 @@ const Header = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+    props.removeUser();
+    history.push('/login');
   };
+
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -64,7 +71,7 @@ const Header = () => {
                 onClick={handleMenu}
                 disableElevation
               >
-                João Antonio
+                {`${props.user.firstName} ${props.user.lastName}`}
               </Button>
               <Menu
                 id="menu-appbar"
@@ -112,4 +119,12 @@ const Header = () => {
   );
 }
 
-export default Header;
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  };
+}
+
+const mapDispatchToProps = { removeUser };
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

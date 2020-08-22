@@ -5,13 +5,14 @@ import Signup from './pages/Signup';
 import ListErrors from './pages/ListErrors';
 import DetailsError from './pages/DetailsError';
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute'
 
 const Routes = () => {
   return (
     <BrowserRouter>
       <Header />
-      <Route component={ListErrors} path='/' exact />
-      <Route component={DetailsError} path='/erros/:id' />
+      <ProtectedRoute component={ListErrors} path='/' exact />
+      <ProtectedRoute component={DetailsError} path='/erros/:id' />
       <Route component={Signin} path='/login' />
       <Route component={Signup} path='/join' />
     </BrowserRouter>
