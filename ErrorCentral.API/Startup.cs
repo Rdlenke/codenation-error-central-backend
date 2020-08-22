@@ -39,6 +39,17 @@ namespace ErrorCentral.API
                 .AddCustomSwagger()
                 .AddCustomApplicationServices();
 
+            services
+                .AddCors(options =>
+                {
+                    options.AddDefaultPolicy(builder =>
+                    {
+                        builder.AllowAnyOrigin();
+                        builder.AllowAnyMethod();
+                        builder.AllowAnyHeader();
+                    });
+                });
+
             services.AddControllers();
         }
 
@@ -59,6 +70,7 @@ namespace ErrorCentral.API
             }
 
             app.UseHttpsRedirection();
+            app.UseCors();
 
             app.UseRouting();
 
