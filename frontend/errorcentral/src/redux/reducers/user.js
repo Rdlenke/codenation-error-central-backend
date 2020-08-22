@@ -1,4 +1,4 @@
-import { ADD_USER } from '../actions/actionTypes';
+import { ADD_USER, REMOVE_USER } from '../actions/actionTypes';
 
 const initialState = {
     email: "",
@@ -22,7 +22,9 @@ export default (state = initialState, action) => {
                 lastName
             };
         }
-
+        case REMOVE_USER: {
+            return initialState;
+        }
         default:
             return state;
     }

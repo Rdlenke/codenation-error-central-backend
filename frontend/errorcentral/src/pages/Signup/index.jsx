@@ -51,8 +51,11 @@ const Signup = (props) => {
   const [values, setValues] = useState({
     email: '',
     password: '',
+    firstName: '',
+    lastName: '',
     showPassword: false,
   });
+
   const history = useHistory();
 
 
@@ -68,9 +71,16 @@ const Signup = (props) => {
     event.preventDefault();
   };
 
-  function handleSubmit(data, { reset }) {
+  function handleSubmit(event) {
+    event.preventDefault();
     setState({data: [], loading: true, status: 0})
-    api.post('v1/User/CreateUser', data)
+
+    api.post('v1/User/CreateUser', {
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      password: values.password
+    })
       .then(response => {
 
         setState({ loading: false});
@@ -83,8 +93,6 @@ const Signup = (props) => {
       .catch(error => {
         setState({ data: error, loading: false, status: 0 })
       })
-
-    reset();
   }
 
   return (
@@ -105,6 +113,8 @@ const Signup = (props) => {
           fullWidth
           margin="normal"
           variant="outlined"
+          value={values.firstName}
+          onChange={handleChange('firstName')}
           className={classes.marginBottom}
         />
         <TextField
@@ -114,6 +124,8 @@ const Signup = (props) => {
           placeholder="Ex: Souza"
           type="text"
           fullWidth
+          value={values.lastName}
+          onChange={handleChange('lastName')}
           margin="normal"
           variant="outlined"
           className={classes.marginBottom}
@@ -125,6 +137,8 @@ const Signup = (props) => {
           placeholder="email@email.com"
           type="email"
           fullWidth
+          value={values.email}
+          onChange={handleChange('email')}
           margin="normal"
           variant="outlined"
           className={classes.marginBottom}

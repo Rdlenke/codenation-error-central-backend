@@ -12,15 +12,15 @@ const ErrorActionsItem = (props) => {
   function handleArchiveClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.patch(`v1/logerros/archive/${props.error.id}`)
+    api.patch(`v1/logerrors/archive/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }
-  
+
   function handleUnarchiveClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.patch(`v1/logerros/unarchive/${props.error.id}`)
+    api.patch(`v1/logerrors/unarchive/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }
@@ -28,7 +28,7 @@ const ErrorActionsItem = (props) => {
   function handleDeleteClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    api.delete(`v1/logerros/${props.error.id}`)
+    api.delete(`v1/logerrors/${props.error.id}`)
       .then(response => {})
       .catch(error => {});
   }

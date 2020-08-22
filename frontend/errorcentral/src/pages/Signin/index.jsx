@@ -67,13 +67,18 @@ const Signin = (props) => {
     event.preventDefault();
   };
 
-  function handleSubmit(data, { reset }) {
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    console.log(values);
+
     setState({data: [], loading: true, status: 0})
 
-    api.post('v1/User/AuthenticateUser', data)
+    api.post('v1/User/AuthenticateUser', { email: values.email, password: values.password })
       .then(response => {
-
         setState({ loading: false });
+
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;;
 
         props.addUser(response.data);
 
@@ -83,8 +88,6 @@ const Signin = (props) => {
       .catch(error => {
         setState({ data: error, loading: false, status: 0 })
       });
-
-    reset();
   }
 
   return (
@@ -105,6 +108,8 @@ const Signin = (props) => {
           fullWidth
           margin="normal"
           variant="outlined"
+          value={values.email}
+          onChange={handleChange('email')}
           className={classes.marginBottom}
         />
         <FormControl fullWidth variant="outlined">
