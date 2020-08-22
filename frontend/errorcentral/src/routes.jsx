@@ -9,7 +9,7 @@ import Header from './components/Header';
 const Routes = () => {
   return (
     <BrowserRouter>
-      {/* <Header /> */}
+      <Header />
       <Route component={ListErrors} path='/' exact />
       <Route component={DetailsError} path='/erros/:id' />
       <Route component={Signin} path='/login' />

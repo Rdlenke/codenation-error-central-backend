@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import api from '../../services/api';
 import { Form } from "@unform/web";
 import Input from "../../components/Form/input";
-// import "../../components/Form/styles.css";
 import logoImg from '../../assets/images/ErrorCentralLogo.png';
 import './styles.css'
 import { connect } from 'react-redux';
